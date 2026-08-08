@@ -33,17 +33,26 @@
         <div class="collapse navbar-collapse" id="navContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
             <li class="nav-item">
-              <a class="nav-link active" href="index.html">Beranda</a>
+              <a class="nav-link active" href="index.html" data-i18n="nav_home"
+                >Beranda</a
+              >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#daftar_unit">Sewa</a>
+              <a class="nav-link" href="#daftar_unit" data-i18n="nav_sewa"
+                >Sewa</a
+              >
             </li>
           </ul>
           <div
             class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 gap-lg-3"
           >
             <div class="navbar-search">
-              <input type="text" id="searchAll" placeholder="Cari Mobil" />
+              <input
+                type="text"
+                id="searchAll"
+                placeholder="Cari Mobil"
+                data-i18n-placeholder="search_placeholder"
+              />
               <button type="button" aria-label="Cari">
                 <svg
                   width="18"
@@ -63,6 +72,8 @@
               >Login Vendor</a
             >
           -->
+            </div>
+            <div id="langSwitcher"></div>
           </div>
         </div>
       </div>
@@ -95,8 +106,8 @@
             </svg>
           </div>
           <div>
-            <div class="hero-stat-value">Armada Terawat</div>
-            <div class="hero-stat-label">Unit tahun muda &amp; siap jalan</div>
+            <div class="hero-stat-value" data-i18n="hero_stat1_value">Armada Terawat</div>
+            <div class="hero-stat-label" data-i18n="hero_stat1_label">Unit tahun muda &amp; siap jalan</div>
           </div>
         </div>
         <div class="hero-stat-card">
@@ -115,8 +126,8 @@
             </svg>
           </div>
           <div>
-            <div class="hero-stat-value">Konfirmasi via WhatsApp</div>
-            <div class="hero-stat-label">Cepat, tanpa perlu install app</div>
+            <div class="hero-stat-value" data-i18n="hero_stat2_value">Konfirmasi via WhatsApp</div>
+            <div class="hero-stat-label" data-i18n="hero_stat2_label">Cepat, tanpa perlu install app</div>
           </div>
         </div>
         <div class="hero-stat-card">
@@ -134,8 +145,8 @@
             </svg>
           </div>
           <div>
-            <div class="hero-stat-value">Deposit Flat</div>
-            <div class="hero-stat-label">
+            <div class="hero-stat-value" data-i18n="hero_stat3_value">Deposit Flat</div>
+            <div class="hero-stat-label" data-i18n="hero_stat3_label">
               Booking transparan, tanpa biaya siluman
             </div>
           </div>
@@ -143,11 +154,11 @@
       </div>
 
       <div class="mb-4" style="margin-top: 48px">
-        <span class="eyebrow-label">Katalog Unit</span>
-        <h1 class="page-heading" style="font-size: 2rem">
+        <span class="eyebrow-label" data-i18n="catalog_eyebrow">Katalog Unit</span>
+        <h1 class="page-heading" style="font-size: 2rem" data-i18n="catalog_heading">
           Sewa Kendaraan di Jogja, Tanpa Ribet
         </h1>
-        <p class="page-subtext">
+        <p class="page-subtext" data-i18n="catalog_subtext">
           Pilih unit, tentukan tanggal, lalu konfirmasi langsung lewat WhatsApp.
           Tidak perlu install aplikasi apapun.
         </p>
@@ -231,33 +242,57 @@
               />
               <span>Rumah Mobil Jogja - Rental Mobil</span>
             </div>
-            <p>
-              Sewa mobil &amp; motor terpercaya di Jogja — lepas kunci atau
-              dengan sopir.
+            <p data-i18n="footer_tagline">
+              Sewa mobil terpercaya di Jogja — lepas kunci atau dengan sopir.
             </p>
           </div>
           <div class="col-12 col-md-6 d-flex flex-column align-items-md-end">
             <div class="footer-links mb-2">
-              <a href="index.html">Beranda</a>
-              <a href="index.html#daftar_unit">Sewa Sekarang</a>
-              <a href="login.html">Login Vendor</a>
+              <a href="index.html" data-i18n="nav_home">Beranda</a>
+              <a href="index.html#daftar_unit" data-i18n="unit_cta">Sewa Sekarang</a>
+              <a href="login.html" data-i18n="nav_login_vendor">Login Vendor</a>
             </div>
-            <p>Butuh bantuan? Hubungi admin lewat WhatsApp saat booking.</p>
+            <p data-i18n="footer_help">Butuh bantuan? Hubungi admin lewat WhatsApp saat booking.</p>
           </div>
         </div>
         <div class="footer-bottom text-center">
           &copy; <span id="footerYear"></span> Rumah Mobil Jogja - Rental Mobil.
-          Semua hak dilindungi.
+          <span data-i18n="footer_rights">Semua hak dilindungi.</span>
         </div>
       </div>
     </footer>
 
+    <a
+      id="waFloatBtn"
+      class="wa-float"
+      href="#"
+      target="_blank"
+      rel="noopener"
+      aria-label="WhatsApp"
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.2h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.8 14.02c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.11-1.8-.11a16.6 16.6 0 0 1-1.65-.61c-2.9-1.25-4.79-4.17-4.93-4.36-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.01-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2 .89 2.14.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.18-.27.36-.22.6-.13.24.09 1.55.73 1.81.86.27.13.45.19.51.3.07.11.07.63-.17 1.31Z"
+        />
+      </svg>
+    </a>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/i18n.js"></script>
     <script>
       document.getElementById("footerYear").textContent =
         new Date().getFullYear();
+      initLangSwitcher("langSwitcher");
+
+      function updateWaFloat() {
+        const btn = document.getElementById("waFloatBtn");
+        btn.href = buildWhatsAppLink(t("wa_float_message"));
+        btn.setAttribute("aria-label", t("wa_float_label"));
+      }
+      updateWaFloat();
+      window.addEventListener("langchange", updateWaFloat);
     </script>
     <script>
       let unitsData = [];
@@ -271,7 +306,7 @@
           .order("created_at", { ascending: false });
         if (error) {
           console.error(error);
-          daftarUnitDiv.innerHTML = `<div class="alert alert-danger text-center">Tidak dapat mengambil data unit dari server. Pastikan js/supabase-client.js sudah diisi Project URL &amp; anon key.</div>`;
+          daftarUnitDiv.innerHTML = `<div class="alert alert-danger text-center">${t("unit_fetch_error")}</div>`;
           return [];
         }
         return data || [];
@@ -292,14 +327,14 @@
           );
         }
         if (!filtered.length) {
-          daftarUnitDiv.innerHTML = `<div class="alert alert-warning text-center">Belum ada unit tersedia saat ini.</div>`;
+          daftarUnitDiv.innerHTML = `<div class="alert alert-warning text-center">${t("unit_empty")}</div>`;
           return;
         }
 
         let html = `
           <div class="d-flex justify-content-between align-items-end mb-4">
-            <h4 class="brand-group-title mb-0">Armada yang Tersedia</h4>
-            <span style="color:var(--text-muted);font-size:0.88rem">Menampilkan <b style="color:var(--text-primary)">${filtered.length}</b> unit</span>
+            <h4 class="brand-group-title mb-0">${t("fleet_heading")}</h4>
+            <span style="color:var(--text-muted);font-size:0.88rem">${t("fleet_count", { n: filtered.length })}</span>
           </div>
           <div class="row g-2 g-sm-3 g-lg-4">`;
         for (const u of filtered) {
@@ -313,19 +348,19 @@
                   <h5 class="card-title">${u.brand} ${u.model || ""}</h5>
                   <div class="unit-meta">
                     <span>${u.tahun} &middot; ${u.transmisi}</span>
-                    <span>${u.kapasitas} orang</span>
+                    <span>${u.kapasitas} ${t("orang")}</span>
                   </div>
                   <div class="unit-price-grid mb-3">
                     <div class="unit-price-tile">
-                      <span class="unit-price-label">Lepas kunci</span>
+                      <span class="unit-price-label">${t("price_self_drive")}</span>
                       <span class="unit-price-value">${formatRupiah(u.harga_lepas_kunci)}</span>
                     </div>
                     <div class="unit-price-tile">
-                      <span class="unit-price-label">Dengan sopir</span>
+                      <span class="unit-price-label">${t("price_with_driver")}</span>
                       <span class="unit-price-value">${formatRupiah(u.harga_dengan_sopir)}</span>
                     </div>
                   </div>
-                  <a href="booking.html?unit_id=${u.id}" class="btn-unit-cta mt-auto text-center">Sewa Sekarang</a>
+                  <a href="booking.html?unit_id=${u.id}" class="btn-unit-cta mt-auto text-center">${t("unit_cta")}</a>
                 </div>
               </div>
             </div>`;
@@ -333,6 +368,8 @@
         html += `</div>`;
         daftarUnitDiv.innerHTML = html;
       }
+
+      window.addEventListener("langchange", () => renderUnits(unitsData));
 
       async function loadUnits() {
         unitsData = await getUnits();
