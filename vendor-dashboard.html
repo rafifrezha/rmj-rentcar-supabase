@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard Vendor - RMJ RentCar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar shadow fixed-top">
+      <div class="container-fluid px-3 px-lg-4">
+        <a class="navbar-brand" href="vendor-dashboard.html">
+          <img src="assets/logo-rmj.png" alt="RMJ RentCar" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" style="border-color: var(--border-subtle)">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+            <li class="nav-item"><a class="nav-link active" href="vendor-dashboard.html">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.html">Lihat Web Publik</a></li>
+          </ul>
+          <div class="user-badge">
+            <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 8-4 8-4s8 0 8 4" />
+            </svg>
+            <span id="navbarUsername">Vendor</span>
+            <button onclick="logout()" title="Logout">
+              <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M16 17l5-5-5-5" /><path d="M21 12H9" />
+                <path d="M12 19v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container py-5">
+      <div id="authGate" class="text-center py-5" style="color: var(--text-muted)">Memeriksa sesi login...</div>
+
+      <div id="dashboardContent" style="display: none">
+        <ul class="nav nav-tabs mb-4">
+          <li class="nav-item"><button class="nav-link active" data-tab="tab-unit" onclick="switchTab('tab-unit')">Unit Saya</button></li>
+          <li class="nav-item"><button class="nav-link" data-tab="tab-blackout" onclick="switchTab('tab-blackout')">Tanggal Tidak Tersedia</button></li>
+          <li class="nav-item"><button class="nav-link" data-tab="tab-booking" onclick="switchTab('tab-booking')">Booking Masuk</button></li>
+        </ul>
+
+        <!-- TAB: UNIT -->
+        <div id="tab-unit" class="tab-pane">
+          <div class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h2 class="page-heading mb-0" style="font-size: 1.5rem">Unit Saya</h2>
+            <button class="btn-primary btn" onclick="toggleFormUnit()">+ Tambah Unit</button>
+          </div>
+
+          <div class="card p-4 mb-4" id="formUnitWrap" style="display: none">
+            <h5 class="page-heading" style="font-size: 1.1rem">Unit Baru</h5>
+            <form id="formUnit">
+              <input type="hidden" id="unit_edit_id" />
+              <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">Brand</label><input type="text" id="u_brand" class="form-control" required /></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Model</label><input type="text" id="u_model" class="form-control" /></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Tahun</label><input type="number" id="u_tahun" class="form-control" required /></div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Transmisi</label>
+                  <select id="u_transmisi" class="form-control"><option>Manual</option><option>Matic</option></select>
+                </div>
+                <div class="col-md-4 mb-3"><label class="form-label">Kapasitas (lepas kunci)</label><input type="number" id="u_kapasitas" class="form-control" required /></div>
+                <div class="col-md-4 mb-3 d-flex align-items-end">
+                  <span style="font-size: 0.8rem; color: var(--text-muted)">Kapasitas dengan sopir = kapasitas − 1 (otomatis)</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3"><label class="form-label">Harga Lepas Kunci / hari</label><input type="number" id="u_harga_lepas" class="form-control" required /></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Harga Dengan Sopir / hari</label><input type="number" id="u_harga_sopir" class="form-control" required /></div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">Foto Depan</label><input type="file" id="u_foto_depan" class="form-control" accept="image/*" /></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Foto Samping</label><input type="file" id="u_foto_samping" class="form-control" accept="image/*" /></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Foto Dashboard</label><input type="file" id="u_foto_dashboard" class="form-control" accept="image/*" /></div>
+              </div>
+              <div class="form-text mb-3" style="color: var(--text-muted)">Gunakan 3 sudut foto yang sama untuk semua unit supaya tampilan listing konsisten.</div>
+              <div id="unitFormMsg" class="mb-3"></div>
+              <button type="submit" class="btn-primary btn">Simpan Unit</button>
+              <button type="button" class="btn-secondary btn" onclick="toggleFormUnit(false)">Batal</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr><th>Foto</th><th>Brand/Model</th><th>Tahun</th><th>Harga/Hari</th><th>Status</th><th>Aksi</th></tr>
+                </thead>
+                <tbody id="unit_items"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: BLACKOUT -->
+        <div id="tab-blackout" class="tab-pane" style="display: none">
+          <h2 class="page-heading mb-4" style="font-size: 1.5rem">Tanggal Tidak Tersedia</h2>
+          <div class="card p-4 mb-4">
+            <form id="formBlackout" class="row g-3 align-items-end">
+              <div class="col-md-4">
+                <label class="form-label">Unit</label>
+                <select id="bo_unit" class="form-control" required></select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Dari Tanggal</label>
+                <input type="date" id="bo_mulai" class="form-control" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Sampai Tanggal</label>
+                <input type="date" id="bo_selesai" class="form-control" required />
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn-primary btn w-100">Tambah</button>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Alasan (opsional)</label>
+                <input type="text" id="bo_alasan" class="form-control" placeholder="mis. servis rutin, dipakai sendiri, dikonfirmasi booking #..." />
+              </div>
+            </form>
+          </div>
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead><tr><th>Unit</th><th>Dari</th><th>Sampai</th><th>Alasan</th><th>Aksi</th></tr></thead>
+                <tbody id="blackout_items"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: BOOKING -->
+        <div id="tab-booking" class="tab-pane" style="display: none">
+          <h2 class="page-heading mb-2" style="font-size: 1.5rem">Booking Masuk</h2>
+          <p class="page-subtext mb-4">Setelah kamu konfirmasi booking lewat chat WhatsApp dengan customer, tandai status di sini dan sistem akan otomatis menambahkan tanggal tersebut ke daftar tidak tersedia.</p>
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr><th>Unit</th><th>Customer</th><th>WA</th><th>Tanggal</th><th>Mode</th><th>Total</th><th>Status</th></tr>
+                </thead>
+                <tbody id="booking_items"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+      let currentUser = null;
+      let myUnits = [];
+
+      async function logout() {
+        await supabaseClient.auth.signOut();
+        window.location.href = "login.html";
+      }
+
+      function switchTab(tabId) {
+        document.querySelectorAll(".tab-pane").forEach((el) => (el.style.display = "none"));
+        document.getElementById(tabId).style.display = "block";
+        document.querySelectorAll("[data-tab]").forEach((btn) => btn.classList.remove("active"));
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add("active");
+        if (tabId === "tab-blackout") loadBlackouts();
+        if (tabId === "tab-booking") loadBookings();
+      }
+
+      function toggleFormUnit(show) {
+        const wrap = document.getElementById("formUnitWrap");
+        const willShow = show === undefined ? wrap.style.display === "none" : show;
+        wrap.style.display = willShow ? "block" : "none";
+        if (!willShow) {
+          document.getElementById("formUnit").reset();
+          document.getElementById("unit_edit_id").value = "";
+        }
+      }
+
+      async function uploadFoto(file, prefix) {
+        if (!file) return null;
+        const filename = `${prefix}-${Date.now()}-${file.name}`;
+        const { error } = await supabaseClient.storage.from("foto-unit").upload(filename, file);
+        if (error) {
+          console.error(error);
+          return null;
+        }
+        const { data } = supabaseClient.storage.from("foto-unit").getPublicUrl(filename);
+        return data.publicUrl;
+      }
+
+      async function loadUnits() {
+        const { data, error } = await supabaseClient
+          .from("units")
+          .select("*")
+          .eq("vendor_id", currentUser.id)
+          .order("created_at", { ascending: false });
+        if (error) {
+          console.error(error);
+          return;
+        }
+        myUnits = data || [];
+        renderUnitTable();
+        renderUnitSelectForBlackout();
+      }
+
+      function renderUnitTable() {
+        const tbody = document.getElementById("unit_items");
+        tbody.innerHTML = "";
+        if (!myUnits.length) {
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted)">Belum ada unit. Klik "+ Tambah Unit" untuk mulai.</td></tr>`;
+          return;
+        }
+        for (const u of myUnits) {
+          tbody.insertAdjacentHTML(
+            "beforeend",
+            `<tr>
+              <td>${u.foto_depan ? `<img src="${u.foto_depan}" style="width:70px;height:45px;object-fit:cover;border-radius:6px;">` : "-"}</td>
+              <td>${u.brand} ${u.model || ""}</td>
+              <td>${u.tahun}</td>
+              <td>${formatRupiah(u.harga_lepas_kunci)}</td>
+              <td>${u.status}</td>
+              <td>
+                <button class="btn btn-secondary btn-sm" onclick="editUnit('${u.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUnit('${u.id}')">Hapus</button>
+              </td>
+            </tr>`
+          );
+        }
+      }
+
+      window.editUnit = (id) => {
+        const u = myUnits.find((x) => x.id === id);
+        if (!u) return;
+        toggleFormUnit(true);
+        document.getElementById("unit_edit_id").value = u.id;
+        document.getElementById("u_brand").value = u.brand;
+        document.getElementById("u_model").value = u.model || "";
+        document.getElementById("u_tahun").value = u.tahun;
+        document.getElementById("u_transmisi").value = u.transmisi;
+        document.getElementById("u_kapasitas").value = u.kapasitas;
+        document.getElementById("u_harga_lepas").value = u.harga_lepas_kunci;
+        document.getElementById("u_harga_sopir").value = u.harga_dengan_sopir;
+      };
+
+      window.deleteUnit = async (id) => {
+        if (!confirm("Yakin hapus unit ini?")) return;
+        await supabaseClient.from("units").delete().eq("id", id);
+        loadUnits();
+      };
+
+      document.getElementById("formUnit").onsubmit = async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById("unitFormMsg");
+        msg.innerHTML = `<span style="color:var(--accent-cyan)">Menyimpan...</span>`;
+        const editId = document.getElementById("unit_edit_id").value;
+
+        const fotoDepanFile = document.getElementById("u_foto_depan").files[0];
+        const fotoSampingFile = document.getElementById("u_foto_samping").files[0];
+        const fotoDashboardFile = document.getElementById("u_foto_dashboard").files[0];
+
+        const payload = {
+          brand: document.getElementById("u_brand").value.trim(),
+          model: document.getElementById("u_model").value.trim(),
+          tahun: Number(document.getElementById("u_tahun").value),
+          transmisi: document.getElementById("u_transmisi").value,
+          kapasitas: Number(document.getElementById("u_kapasitas").value),
+          harga_lepas_kunci: Number(document.getElementById("u_harga_lepas").value),
+          harga_dengan_sopir: Number(document.getElementById("u_harga_sopir").value),
+          vendor_id: currentUser.id,
+          vendor_nama: currentUser.vendorNama,
+          vendor_whatsapp: currentUser.vendorWhatsapp,
+        };
+
+        if (fotoDepanFile) payload.foto_depan = await uploadFoto(fotoDepanFile, "depan");
+        if (fotoSampingFile) payload.foto_samping = await uploadFoto(fotoSampingFile, "samping");
+        if (fotoDashboardFile) payload.foto_dashboard = await uploadFoto(fotoDashboardFile, "dashboard");
+
+        let error;
+        if (editId) {
+          ({ error } = await supabaseClient.from("units").update(payload).eq("id", editId));
+        } else {
+          payload.status = "pending_review";
+          ({ error } = await supabaseClient.from("units").insert(payload));
+        }
+
+        if (error) {
+          console.error(error);
+          msg.innerHTML = `<span style="color:#ff9d9d">Gagal menyimpan: ${error.message}</span>`;
+          return;
+        }
+        msg.innerHTML = `<span style="color:var(--accent)">Tersimpan. Status unit baru: pending_review sampai diverifikasi admin.</span>`;
+        toggleFormUnit(false);
+        loadUnits();
+      };
+
+      // ---------------- BLACKOUT ----------------
+      function renderUnitSelectForBlackout() {
+        const sel = document.getElementById("bo_unit");
+        sel.innerHTML = myUnits.map((u) => `<option value="${u.id}">${u.brand} ${u.model || ""} (${u.tahun})</option>`).join("");
+      }
+
+      async function loadBlackouts() {
+        if (!myUnits.length) {
+          document.getElementById("blackout_items").innerHTML = `<tr><td colspan="5" style="color:var(--text-muted)">Belum ada unit.</td></tr>`;
+          return;
+        }
+        const unitIds = myUnits.map((u) => u.id);
+        const { data, error } = await supabaseClient
+          .from("blackout_dates")
+          .select("*")
+          .in("unit_id", unitIds)
+          .order("tanggal_mulai", { ascending: true });
+        if (error) {
+          console.error(error);
+          return;
+        }
+        const tbody = document.getElementById("blackout_items");
+        tbody.innerHTML = "";
+        if (!data || !data.length) {
+          tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted)">Belum ada tanggal blackout.</td></tr>`;
+          return;
+        }
+        for (const b of data) {
+          const unit = myUnits.find((u) => u.id === b.unit_id);
+          tbody.insertAdjacentHTML(
+            "beforeend",
+            `<tr>
+              <td>${unit ? unit.brand + " " + (unit.model || "") : b.unit_id}</td>
+              <td>${b.tanggal_mulai}</td>
+              <td>${b.tanggal_selesai}</td>
+              <td>${b.alasan || "-"}</td>
+              <td><button class="btn btn-danger btn-sm" onclick="deleteBlackout('${b.id}')">Hapus</button></td>
+            </tr>`
+          );
+        }
+      }
+
+      window.deleteBlackout = async (id) => {
+        if (!confirm("Hapus blackout date ini? Tanggal akan kembali tersedia.")) return;
+        await supabaseClient.from("blackout_dates").delete().eq("id", id);
+        loadBlackouts();
+      };
+
+      document.getElementById("formBlackout").onsubmit = async (e) => {
+        e.preventDefault();
+        const payload = {
+          unit_id: document.getElementById("bo_unit").value,
+          tanggal_mulai: document.getElementById("bo_mulai").value,
+          tanggal_selesai: document.getElementById("bo_selesai").value,
+          alasan: document.getElementById("bo_alasan").value.trim() || null,
+        };
+        const { error } = await supabaseClient.from("blackout_dates").insert(payload);
+        if (error) {
+          alert("Gagal menambah: " + error.message);
+          return;
+        }
+        e.target.reset();
+        loadBlackouts();
+      };
+
+      // ---------------- BOOKING ----------------
+      async function loadBookings() {
+        if (!myUnits.length) {
+          document.getElementById("booking_items").innerHTML = `<tr><td colspan="7" style="color:var(--text-muted)">Belum ada unit.</td></tr>`;
+          return;
+        }
+        const unitIds = myUnits.map((u) => u.id);
+        const { data, error } = await supabaseClient
+          .from("bookings")
+          .select("*")
+          .in("unit_id", unitIds)
+          .order("created_at", { ascending: false });
+        if (error) {
+          console.error(error);
+          return;
+        }
+        const tbody = document.getElementById("booking_items");
+        tbody.innerHTML = "";
+        if (!data || !data.length) {
+          tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-muted)">Belum ada booking masuk.</td></tr>`;
+          return;
+        }
+        for (const b of data) {
+          const unit = myUnits.find((u) => u.id === b.unit_id);
+          const modeLabel = b.mode_sewa === "self_drive" ? "Lepas Kunci" : "Dengan Sopir";
+          tbody.insertAdjacentHTML(
+            "beforeend",
+            `<tr>
+              <td>${unit ? unit.brand + " " + (unit.model || "") : b.unit_id}</td>
+              <td>${b.nama_customer}</td>
+              <td><a href="https://wa.me/${b.whatsapp_customer.replace(/^0/, "62")}" target="_blank" class="wa-link">${b.whatsapp_customer}</a></td>
+              <td>${b.tanggal_mulai} s/d ${b.tanggal_selesai}</td>
+              <td>${modeLabel}</td>
+              <td>${formatRupiah(b.total_harga)}</td>
+              <td>
+                <select class="form-control form-control-sm booking-status" data-id="${b.id}" data-unit="${b.unit_id}" data-mulai="${b.tanggal_mulai}" data-selesai="${b.tanggal_selesai}">
+                  <option value="menunggu_konfirmasi" ${b.status === "menunggu_konfirmasi" ? "selected" : ""}>Menunggu Konfirmasi</option>
+                  <option value="dikonfirmasi" ${b.status === "dikonfirmasi" ? "selected" : ""}>Dikonfirmasi</option>
+                  <option value="ditolak" ${b.status === "ditolak" ? "selected" : ""}>Ditolak</option>
+                  <option value="selesai" ${b.status === "selesai" ? "selected" : ""}>Selesai</option>
+                </select>
+              </td>
+            </tr>`
+          );
+        }
+        document.querySelectorAll(".booking-status").forEach((sel) => {
+          sel.onchange = async function () {
+            const id = this.dataset.id;
+            const status = this.value;
+            const { error } = await supabaseClient.from("bookings").update({ status }).eq("id", id);
+            if (error) {
+              alert("Gagal update status: " + error.message);
+              return;
+            }
+            if (status === "dikonfirmasi") {
+              const tambahBlackout = confirm(
+                "Booking ditandai dikonfirmasi. Tambahkan tanggal ini otomatis ke daftar tidak tersedia sekarang?"
+              );
+              if (tambahBlackout) {
+                await supabaseClient.from("blackout_dates").insert({
+                  unit_id: this.dataset.unit,
+                  tanggal_mulai: this.dataset.mulai,
+                  tanggal_selesai: this.dataset.selesai,
+                  alasan: "Booking dikonfirmasi #" + id.slice(0, 8),
+                });
+              }
+            }
+          };
+        });
+      }
+
+      // ---------------- AUTH GATE ----------------
+      (async () => {
+        const { data } = await supabaseClient.auth.getSession();
+        if (!data.session) {
+          window.location.href = "login.html";
+          return;
+        }
+        const { data: profile, error: profileError } = await supabaseClient
+          .from("vendor_profiles")
+          .select("*")
+          .eq("id", data.session.user.id)
+          .single();
+
+        if (profileError || !profile) {
+          document.getElementById("authGate").innerHTML =
+            `<div class="alert alert-danger">Akun kamu belum terdaftar sebagai vendor/admin di tabel vendor_profiles. Hubungi admin untuk didaftarkan.</div>`;
+          return;
+        }
+
+        currentUser = {
+          id: data.session.user.id,
+          vendorNama: profile.nama,
+          vendorWhatsapp: profile.whatsapp,
+          role: profile.role,
+        };
+        document.getElementById("navbarUsername").textContent = profile.nama;
+        document.getElementById("authGate").style.display = "none";
+        document.getElementById("dashboardContent").style.display = "block";
+        loadUnits();
+      })();
+    </script>
+  </body>
+</html>

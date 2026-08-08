@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RMJ RentCar - Form Sewa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar shadow fixed-top">
+      <div class="container-fluid px-3 px-lg-4">
+        <a class="navbar-brand" href="index.html">
+          <img src="assets/logo-rmj.png" alt="RMJ RentCar" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" style="border-color: var(--border-subtle)">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+            <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+            <li class="nav-item"><a class="nav-link active" href="index.html#daftar_unit">Sewa</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container py-5">
+      <div class="mb-4">
+        <a href="index.html" class="back-link">&larr; Kembali ke daftar unit</a>
+      </div>
+      <span class="eyebrow-label">Konfirmasi Sewa</span>
+      <h1 class="page-heading" style="font-size: 1.6rem; margin-bottom: 28px">Form Sewa Kendaraan</h1>
+
+      <div id="unit_detail" class="booking-grid">
+        <div class="card">
+          <div class="card-body text-center" style="color: var(--text-muted)">Memuat data unit...</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="container text-center">
+        <div class="footer-brand justify-content-center">
+          <img src="assets/logo-rmj.png" alt="RMJ RentCar" />
+          <span>RMJ RentCar</span>
+        </div>
+        <p>Butuh bantuan? Admin akan membantu lewat WhatsApp setelah kamu klik tombol konfirmasi.</p>
+        <div class="footer-bottom">&copy; <span id="footerYear"></span> RMJ RentCar. Semua hak dilindungi.</div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>document.getElementById("footerYear").textContent = new Date().getFullYear();</script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const unitId = params.get("unit_id");
+      const unitDetail = document.getElementById("unit_detail");
+
+      if (!unitId) {
+        unitDetail.innerHTML = `<div class="alert alert-danger">Unit tidak ditemukan. <a href="index.html" class="wa-link">Kembali ke daftar unit</a>.</div>`;
+      } else {
+        init();
+      }
+
+      async function fetchUnit() {
+        const { data, error } = await supabaseClient.from("units").select("*").eq("id", unitId).single();
+        if (error) throw error;
+        return data;
+      }
+
+      async function fetchBlackouts() {
+        const { data, error } = await supabaseClient.from("blackout_dates").select("*").eq("unit_id", unitId);
+        if (error) throw error;
+        return data || [];
+      }
+
+      async function fetchPendingBookings() {
+        const { data, error } = await supabaseClient
+          .from("bookings")
+          .select("tanggal_mulai, tanggal_selesai, status")
+          .eq("unit_id", unitId)
+          .in("status", ["menunggu_konfirmasi", "dikonfirmasi"]);
+        if (error) return [];
+        return data || [];
+      }
+
+      function rentangBentrok(mulaiA, selesaiA, mulaiB, selesaiB) {
+        return new Date(mulaiA) <= new Date(selesaiB) && new Date(mulaiB) <= new Date(selesaiA);
+      }
+
+      async function init() {
+        let unit, blackouts, pendingBookings;
+        try {
+          unit = await fetchUnit();
+          blackouts = await fetchBlackouts();
+          pendingBookings = await fetchPendingBookings();
+        } catch (err) {
+          unitDetail.innerHTML = `<div class="alert alert-danger">Gagal memuat data unit. Pastikan js/supabase-client.js sudah diisi dengan benar.</div>`;
+          return;
+        }
+
+        unitDetail.innerHTML = `
+          <aside class="summary-card card">
+            <div class="card-body">
+              <div class="summary-photo">
+                <img src="${unit.foto_depan || "https://via.placeholder.com/420x260?text=Foto+Unit"}" alt="${unit.brand} ${unit.model || ""}">
+              </div>
+              <div class="summary-title">${unit.brand} ${unit.model || ""}</div>
+              <div class="summary-subtitle">Tahun ${unit.tahun} &middot; ${unit.transmisi}</div>
+
+              <div class="spec-row"><span>Kapasitas (lepas kunci)</span><b>${unit.kapasitas} orang</b></div>
+              <div class="spec-row"><span>Lepas kunci</span><b>${formatRupiah(unit.harga_lepas_kunci)}/hari</b></div>
+              <div class="spec-row"><span>Dengan sopir</span><b>${formatRupiah(unit.harga_dengan_sopir)}/hari</b></div>
+
+              <hr class="section-divider" style="margin: 18px 0" />
+
+              <div class="price-line"><span>Jumlah Hari</span><b id="jumlah_hari_display">&mdash;</b></div>
+              <div class="price-line"><span>Harga per Hari</span><b id="harga_per_hari_display">${formatRupiah(unit.harga_lepas_kunci)}</b></div>
+              <div class="price-line"><span>Deposit Booking</span><b>${formatRupiah(DEPOSIT_FLAT)}</b></div>
+              <div class="price-total"><span>Total Bayar</span><span id="total_display">&mdash;</span></div>
+              <p style="color:var(--text-muted);font-size:0.78rem;margin-top:10px">Deposit dibayar di awal, sisa dilunasi saat serah terima.</p>
+            </div>
+          </aside>
+
+          <div class="card form-card">
+            <div class="card-header">Detail Sewa &amp; Data Penyewa</div>
+            <div class="card-body">
+              <div class="form-section-title">
+                <span class="icon-badge"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                Pilih Mode &amp; Tanggal
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Mode Sewa</label>
+                <select id="mode_sewa" class="form-control">
+                  <option value="self_drive">Lepas Kunci — ${formatRupiah(unit.harga_lepas_kunci)}/hari, kapasitas ${unit.kapasitas} orang</option>
+                  <option value="with_driver">Dengan Sopir — ${formatRupiah(unit.harga_dengan_sopir)}/hari, kapasitas ${unit.kapasitas - 1} orang</option>
+                </select>
+                <div class="form-text mt-2" style="color: var(--text-muted); font-size: 0.85rem" id="mode_note"></div>
+              </div>
+
+              <div class="row">
+                <div class="col-6 mb-3">
+                  <label class="form-label">Tanggal Mulai</label>
+                  <input type="date" id="tgl_mulai" class="form-control" required />
+                </div>
+                <div class="col-6 mb-3">
+                  <label class="form-label">Tanggal Selesai</label>
+                  <input type="date" id="tgl_selesai" class="form-control" required />
+                </div>
+              </div>
+              <div class="mb-3" id="statusTanggal" style="font-size: 0.9rem"></div>
+
+              <div class="mb-4" id="jaminan_note" style="display:none">
+                <div class="alert alert-warning">
+                  Untuk mode lepas kunci berlaku jaminan tambahan (dokumen/nominal akan diinfokan admin saat konfirmasi WhatsApp).
+                </div>
+              </div>
+
+              <div class="form-section-title">
+                <span class="icon-badge"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                Data Penyewa
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Nama Lengkap</label>
+                <input type="text" id="nama_customer" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Nomor WhatsApp</label>
+                <input type="text" id="wa_customer" class="form-control" placeholder="08xxxxxxxxxx" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Jumlah Penumpang</label>
+                <input type="number" id="jumlah_penumpang" class="form-control" min="1" />
+              </div>
+              <div class="mb-4">
+                <label class="form-label">Catatan (opsional)</label>
+                <textarea id="catatan" class="form-control" rows="2"></textarea>
+              </div>
+
+              <div id="resultBox"></div>
+              <button type="button" id="submitBtn" class="btn-primary btn w-100" disabled>Konfirmasi &amp; Kirim ke WhatsApp</button>
+            </div>
+          </div>
+        `;
+
+        const modeSewa = document.getElementById("mode_sewa");
+        const modeNote = document.getElementById("mode_note");
+        const tglMulai = document.getElementById("tgl_mulai");
+        const tglSelesai = document.getElementById("tgl_selesai");
+        const statusTanggal = document.getElementById("statusTanggal");
+        const jumlahHariDisplay = document.getElementById("jumlah_hari_display");
+        const totalDisplay = document.getElementById("total_display");
+        const hargaPerHariDisplay = document.getElementById("harga_per_hari_display");
+        const jaminanNote = document.getElementById("jaminan_note");
+        const submitBtn = document.getElementById("submitBtn");
+        const resultBox = document.getElementById("resultBox");
+
+        function updateModeNote() {
+          if (modeSewa.value === "self_drive") {
+            modeNote.textContent = "Dihitung per blok 24 jam sejak waktu serah terima.";
+            jaminanNote.style.display = "block";
+          } else {
+            modeNote.textContent = `Operasional per hari pukul ${DRIVER_WINDOW_START}–${DRIVER_WINDOW_END}.`;
+            jaminanNote.style.display = "none";
+          }
+        }
+        modeSewa.onchange = () => {
+          updateModeNote();
+          hargaPerHariDisplay.textContent = formatRupiah(
+            modeSewa.value === "self_drive" ? unit.harga_lepas_kunci : unit.harga_dengan_sopir
+          );
+          hitungTotal();
+        };
+        updateModeNote();
+
+        function cekBentrok(start, end) {
+          const semuaRentang = [
+            ...blackouts.map((b) => ({ mulai: b.tanggal_mulai, selesai: b.tanggal_selesai })),
+            ...pendingBookings.map((b) => ({ mulai: b.tanggal_mulai, selesai: b.tanggal_selesai })),
+          ];
+          return semuaRentang.some((r) => rentangBentrok(start, end, r.mulai, r.selesai));
+        }
+
+        function hitungTotal() {
+          statusTanggal.innerHTML = "";
+          submitBtn.disabled = true;
+          resultBox.innerHTML = "";
+          if (!tglMulai.value || !tglSelesai.value) {
+            jumlahHariDisplay.textContent = "—";
+            totalDisplay.textContent = "—";
+            return;
+          }
+
+          const start = new Date(tglMulai.value);
+          const end = new Date(tglSelesai.value);
+          if (end < start) {
+            statusTanggal.innerHTML = `<span style="color:#ff9d9d">Tanggal selesai harus setelah tanggal mulai.</span>`;
+            return;
+          }
+
+          const jumlahHari = hitungJumlahHari(tglMulai.value, tglSelesai.value);
+          const rawSelisih = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+          if (rawSelisih < MIN_RENTAL_DAYS) {
+            statusTanggal.innerHTML = `<span style="color:#ffcb66">Minimal sewa ${MIN_RENTAL_DAYS} hari — otomatis dihitung ${MIN_RENTAL_DAYS} hari.</span>`;
+          }
+
+          if (cekBentrok(tglMulai.value, tglSelesai.value)) {
+            statusTanggal.innerHTML = `<span style="color:#ff9d9d">Unit tidak tersedia pada rentang tanggal tersebut.</span>`;
+            jumlahHariDisplay.textContent = "—";
+            totalDisplay.textContent = "—";
+            return;
+          }
+
+          const hargaPerHari = modeSewa.value === "self_drive" ? unit.harga_lepas_kunci : unit.harga_dengan_sopir;
+          const total = jumlahHari * hargaPerHari;
+          jumlahHariDisplay.textContent = jumlahHari + " hari";
+          totalDisplay.textContent = formatRupiah(total);
+          statusTanggal.innerHTML += `<div style="color:var(--accent)">Unit tersedia pada tanggal tersebut.</div>`;
+          submitBtn.disabled = false;
+        }
+
+        tglMulai.oninput = tglSelesai.oninput = hitungTotal;
+
+        submitBtn.onclick = async () => {
+          const nama = document.getElementById("nama_customer").value.trim();
+          const wa = document.getElementById("wa_customer").value.trim();
+          const penumpang = document.getElementById("jumlah_penumpang").value;
+          const catatan = document.getElementById("catatan").value.trim();
+
+          if (!nama || !wa || !tglMulai.value || !tglSelesai.value) {
+            resultBox.innerHTML = `<div class="alert alert-danger">Mohon lengkapi nama, WhatsApp, dan tanggal sewa.</div>`;
+            return;
+          }
+          if (cekBentrok(tglMulai.value, tglSelesai.value)) {
+            resultBox.innerHTML = `<div class="alert alert-danger">Unit sudah tidak tersedia pada tanggal tersebut. Silakan pilih tanggal lain.</div>`;
+            return;
+          }
+
+          const jumlahHari = hitungJumlahHari(tglMulai.value, tglSelesai.value);
+          const hargaPerHari = modeSewa.value === "self_drive" ? unit.harga_lepas_kunci : unit.harga_dengan_sopir;
+          const total = jumlahHari * hargaPerHari;
+
+          const bookingPayload = {
+            unit_id: unit.id,
+            mode_sewa: modeSewa.value,
+            tanggal_mulai: tglMulai.value,
+            tanggal_selesai: tglSelesai.value,
+            jumlah_hari: jumlahHari,
+            total_harga: total,
+            deposit: DEPOSIT_FLAT,
+            nama_customer: nama,
+            whatsapp_customer: wa,
+            jumlah_penumpang: penumpang ? Number(penumpang) : null,
+            catatan: catatan || null,
+            status: "menunggu_konfirmasi",
+          };
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Menyimpan...";
+
+          const { error } = await supabaseClient.from("bookings").insert(bookingPayload);
+
+          submitBtn.textContent = "Konfirmasi & Kirim ke WhatsApp";
+          if (error) {
+            console.error(error);
+            resultBox.innerHTML = `<div class="alert alert-danger">Gagal menyimpan booking. Coba lagi atau hubungi admin langsung via WA.</div>`;
+            submitBtn.disabled = false;
+            return;
+          }
+
+          const modeLabel = modeSewa.value === "self_drive" ? "Lepas Kunci" : "Dengan Sopir";
+          const pesan =
+            `Halo Admin RMJ RentCar, saya ingin konfirmasi booking:\n\n` +
+            `Unit: ${unit.brand} ${unit.model || ""} (${unit.tahun})\n` +
+            `Mode: ${modeLabel}\n` +
+            `Tanggal: ${tglMulai.value} s/d ${tglSelesai.value} (${jumlahHari} hari)\n` +
+            `Total: ${formatRupiah(total)}\n` +
+            `Deposit: ${formatRupiah(DEPOSIT_FLAT)}\n` +
+            `Nama: ${nama}\n` +
+            `WhatsApp: ${wa}\n` +
+            (penumpang ? `Jumlah Penumpang: ${penumpang}\n` : "") +
+            (catatan ? `Catatan: ${catatan}\n` : "") +
+            `\nMohon konfirmasi ketersediaan. Terima kasih.`;
+
+          const waLink = buildWhatsAppLink(pesan);
+          resultBox.innerHTML = `
+            <div class="alert alert-success mb-3">
+              Booking tersimpan! Klik tombol di bawah untuk mengirim konfirmasi ke admin via WhatsApp.
+            </div>
+            <a href="${waLink}" target="_blank" class="btn w-100 mb-3" style="background:#25D366;color:#fff;font-weight:600;padding:12px 0;border-radius:var(--radius-sm);display:block;text-align:center;">
+              Kirim Konfirmasi ke WhatsApp
+            </a>`;
+          submitBtn.style.display = "none";
+        };
+      }
+    </script>
+  </body>
+</html>

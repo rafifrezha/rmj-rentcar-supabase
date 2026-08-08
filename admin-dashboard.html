@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard Admin - RMJ RentCar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar shadow fixed-top">
+      <div class="container-fluid px-3 px-lg-4">
+        <a class="navbar-brand" href="admin-dashboard.html">
+          <img src="assets/logo-rmj.png" alt="RMJ RentCar" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" style="border-color: var(--border-subtle)">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+            <li class="nav-item"><a class="nav-link active" href="admin-dashboard.html">Dashboard Admin</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.html">Lihat Web Publik</a></li>
+          </ul>
+          <div class="user-badge">
+            <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4Z" />
+            </svg>
+            <span id="navbarUsername">Admin</span>
+            <button onclick="logout()" title="Logout">
+              <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M16 17l5-5-5-5" /><path d="M21 12H9" />
+                <path d="M12 19v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container py-5">
+      <div id="authGate" class="text-center py-5" style="color: var(--text-muted)">Memeriksa sesi login...</div>
+
+      <div id="dashboardContent" style="display: none">
+        <div class="mb-4">
+          <span class="eyebrow-label">Panel Admin</span>
+          <h1 class="page-heading" style="font-size: 1.6rem">Kontrol Penuh Platform</h1>
+          <p class="page-subtext">Kelola seluruh unit dari semua vendor dan pantau booking yang masuk di satu tempat.</p>
+        </div>
+
+        <div class="hero-stats" style="margin: 0 0 32px 0">
+          <div class="hero-stat-card">
+            <div class="hero-stat-icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+            </div>
+            <div>
+              <div class="hero-stat-value" id="stat_total_unit">-</div>
+              <div class="hero-stat-label">Total unit terdaftar</div>
+            </div>
+          </div>
+          <div class="hero-stat-card">
+            <div class="hero-stat-icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l1.5-4.5A2 2 0 0 1 6.4 6h11.2a2 2 0 0 1 1.9 1.5L21 12" /><path d="M3 12h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5Z" /></svg>
+            </div>
+            <div>
+              <div class="hero-stat-value" id="stat_published_unit">-</div>
+              <div class="hero-stat-label">Unit tayang (published)</div>
+            </div>
+          </div>
+          <div class="hero-stat-card">
+            <div class="hero-stat-icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
+            </div>
+            <div>
+              <div class="hero-stat-value" id="stat_pending_booking">-</div>
+              <div class="hero-stat-label">Booking menunggu konfirmasi</div>
+            </div>
+          </div>
+        </div>
+
+        <ul class="nav nav-tabs mb-4">
+          <li class="nav-item"><button class="nav-link active" data-tab="tab-unit" onclick="switchTab('tab-unit')">Kelola Unit</button></li>
+          <li class="nav-item"><button class="nav-link" data-tab="tab-booking" onclick="switchTab('tab-booking')">Booking Masuk</button></li>
+        </ul>
+
+        <!-- TAB: UNIT -->
+        <div id="tab-unit" class="tab-pane">
+          <div class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h2 class="page-heading mb-0" style="font-size: 1.3rem">Semua Unit</h2>
+            <button class="btn-primary btn" onclick="toggleFormUnit()">+ Input Kendaraan</button>
+          </div>
+
+          <div class="card p-4 mb-4" id="formUnitWrap" style="display: none">
+            <h5 class="page-heading" style="font-size: 1.1rem">Input Kendaraan</h5>
+            <form id="formUnit">
+              <input type="hidden" id="unit_edit_id" />
+              <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">Brand</label><input type="text" id="u_brand" class="form-control" required /></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Model</label><input type="text" id="u_model" class="form-control" /></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Tahun</label><input type="number" id="u_tahun" class="form-control" required /></div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Transmisi</label>
+                  <select id="u_transmisi" class="form-control"><option>Manual</option><option>Matic</option></select>
+                </div>
+                <div class="col-md-4 mb-3"><label class="form-label">Kapasitas (lepas kunci)</label><input type="number" id="u_kapasitas" class="form-control" required /></div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Status Tayang</label>
+                  <select id="u_status" class="form-control">
+                    <option value="published">Published (langsung tayang)</option>
+                    <option value="pending_review">Pending Review</option>
+                    <option value="suspended">Suspended (disembunyikan)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3"><label class="form-label">Harga Lepas Kunci / hari</label><input type="number" id="u_harga_lepas" class="form-control" required /></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Harga Dengan Sopir / hari</label><input type="number" id="u_harga_sopir" class="form-control" required /></div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3"><label class="form-label">Nama Pemilik / Vendor</label><input type="text" id="u_vendor_nama" class="form-control" required /></div>
+                <div class="col-md-6 mb-3"><label class="form-label">WhatsApp Pemilik / Vendor</label><input type="text" id="u_vendor_whatsapp" class="form-control" placeholder="628xxxxxxxxxx" required /></div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">Foto Depan</label><input type="file" id="u_foto_depan" class="form-control" accept="image/*" /></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Foto Samping</label><input type="file" id="u_foto_samping" class="form-control" accept="image/*" /></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Foto Dashboard</label><input type="file" id="u_foto_dashboard" class="form-control" accept="image/*" /></div>
+              </div>
+              <div class="form-text mb-3" style="color: var(--text-muted)">Gunakan 3 sudut foto yang sama untuk semua unit supaya tampilan listing konsisten.</div>
+              <div id="unitFormMsg" class="mb-3"></div>
+              <button type="submit" class="btn-primary btn">Simpan Unit</button>
+              <button type="button" class="btn-secondary btn" onclick="toggleFormUnit(false)">Batal</button>
+            </form>
+          </div>
+
+          <div class="card mb-3 p-3">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <label class="form-label mb-0" style="white-space: nowrap">Filter status:</label>
+              <select id="filterUnitStatus" class="form-control" style="max-width: 220px">
+                <option value="">Semua</option>
+                <option value="published">Published</option>
+                <option value="pending_review">Pending Review</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr><th>Foto</th><th>Brand/Model</th><th>Tahun</th><th>Pemilik</th><th>Harga/Hari</th><th>Status</th><th>Aksi</th></tr>
+                </thead>
+                <tbody id="unit_items"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: BOOKING -->
+        <div id="tab-booking" class="tab-pane" style="display: none">
+          <h2 class="page-heading mb-2" style="font-size: 1.3rem">Booking Masuk</h2>
+          <p class="page-subtext mb-4">Semua booking dari seluruh unit &mdash; setelah kamu konfirmasi ke customer lewat WhatsApp, perbarui status di sini. Menandai "Dikonfirmasi" akan menawarkan tambah tanggal itu ke daftar tidak tersedia otomatis.</p>
+
+          <div class="card mb-3 p-3">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <label class="form-label mb-0" style="white-space: nowrap">Filter status:</label>
+              <select id="filterBookingStatus" class="form-control" style="max-width: 220px">
+                <option value="">Semua</option>
+                <option value="menunggu_konfirmasi">Menunggu Konfirmasi</option>
+                <option value="dikonfirmasi">Dikonfirmasi</option>
+                <option value="ditolak">Ditolak</option>
+                <option value="selesai">Selesai</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr><th>Unit</th><th>Pemilik</th><th>Customer</th><th>WA</th><th>Tanggal</th><th>Mode</th><th>Total</th><th>Status</th></tr>
+                </thead>
+                <tbody id="booking_items"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+      let currentUser = null;
+      let allUnits = [];
+      let allBookings = [];
+
+      async function logout() {
+        await supabaseClient.auth.signOut();
+        window.location.href = "login.html";
+      }
+
+      function switchTab(tabId) {
+        document.querySelectorAll(".tab-pane").forEach((el) => (el.style.display = "none"));
+        document.getElementById(tabId).style.display = "block";
+        document.querySelectorAll("[data-tab]").forEach((btn) => btn.classList.remove("active"));
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add("active");
+        if (tabId === "tab-booking") loadBookings();
+      }
+
+      function toggleFormUnit(show) {
+        const wrap = document.getElementById("formUnitWrap");
+        const willShow = show === undefined ? wrap.style.display === "none" : show;
+        wrap.style.display = willShow ? "block" : "none";
+        if (!willShow) {
+          document.getElementById("formUnit").reset();
+          document.getElementById("unit_edit_id").value = "";
+        }
+      }
+
+      async function uploadFoto(file, prefix) {
+        if (!file) return null;
+        const filename = `${prefix}-${Date.now()}-${file.name}`;
+        const { error } = await supabaseClient.storage.from("foto-unit").upload(filename, file);
+        if (error) {
+          console.error(error);
+          return null;
+        }
+        const { data } = supabaseClient.storage.from("foto-unit").getPublicUrl(filename);
+        return data.publicUrl;
+      }
+
+      // ---------------- UNIT ----------------
+      async function loadUnits() {
+        const { data, error } = await supabaseClient.from("units").select("*").order("created_at", { ascending: false });
+        if (error) {
+          console.error(error);
+          return;
+        }
+        allUnits = data || [];
+        renderUnitTable();
+        renderStats();
+      }
+
+      function renderUnitTable() {
+        const tbody = document.getElementById("unit_items");
+        const filterVal = document.getElementById("filterUnitStatus").value;
+        const list = filterVal ? allUnits.filter((u) => u.status === filterVal) : allUnits;
+        tbody.innerHTML = "";
+        if (!list.length) {
+          tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-muted)">Belum ada unit.</td></tr>`;
+          return;
+        }
+        const statusBadge = {
+          published: `<span class="badge bg-primary">Published</span>`,
+          pending_review: `<span class="alert-warning" style="padding:4px 10px;border-radius:999px;font-size:0.78rem;font-weight:600">Pending</span>`,
+          suspended: `<span class="alert-danger" style="padding:4px 10px;border-radius:999px;font-size:0.78rem;font-weight:600">Suspended</span>`,
+        };
+        for (const u of list) {
+          tbody.insertAdjacentHTML(
+            "beforeend",
+            `<tr>
+              <td>${u.foto_depan ? `<img src="${u.foto_depan}" style="width:70px;height:45px;object-fit:cover;border-radius:6px;">` : "-"}</td>
+              <td>${u.brand} ${u.model || ""}</td>
+              <td>${u.tahun}</td>
+              <td>${u.vendor_nama || "-"}</td>
+              <td>${formatRupiah(u.harga_lepas_kunci)}</td>
+              <td>${statusBadge[u.status] || u.status}</td>
+              <td>
+                <button class="btn btn-secondary btn-sm" onclick="editUnit('${u.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUnit('${u.id}')">Hapus</button>
+              </td>
+            </tr>`
+          );
+        }
+      }
+
+      window.editUnit = (id) => {
+        const u = allUnits.find((x) => x.id === id);
+        if (!u) return;
+        toggleFormUnit(true);
+        document.getElementById("unit_edit_id").value = u.id;
+        document.getElementById("u_brand").value = u.brand;
+        document.getElementById("u_model").value = u.model || "";
+        document.getElementById("u_tahun").value = u.tahun;
+        document.getElementById("u_transmisi").value = u.transmisi;
+        document.getElementById("u_kapasitas").value = u.kapasitas;
+        document.getElementById("u_status").value = u.status;
+        document.getElementById("u_harga_lepas").value = u.harga_lepas_kunci;
+        document.getElementById("u_harga_sopir").value = u.harga_dengan_sopir;
+        document.getElementById("u_vendor_nama").value = u.vendor_nama || "";
+        document.getElementById("u_vendor_whatsapp").value = u.vendor_whatsapp || "";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      window.deleteUnit = async (id) => {
+        if (!confirm("Yakin hapus unit ini? Booking & blackout date terkait juga akan terhapus.")) return;
+        const { error } = await supabaseClient.from("units").delete().eq("id", id);
+        if (error) {
+          alert("Gagal hapus: " + error.message);
+          return;
+        }
+        loadUnits();
+      };
+
+      document.getElementById("formUnit").onsubmit = async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById("unitFormMsg");
+        msg.innerHTML = `<span style="color:var(--accent-cyan)">Menyimpan...</span>`;
+        const editId = document.getElementById("unit_edit_id").value;
+
+        const fotoDepanFile = document.getElementById("u_foto_depan").files[0];
+        const fotoSampingFile = document.getElementById("u_foto_samping").files[0];
+        const fotoDashboardFile = document.getElementById("u_foto_dashboard").files[0];
+
+        const payload = {
+          brand: document.getElementById("u_brand").value.trim(),
+          model: document.getElementById("u_model").value.trim(),
+          tahun: Number(document.getElementById("u_tahun").value),
+          transmisi: document.getElementById("u_transmisi").value,
+          kapasitas: Number(document.getElementById("u_kapasitas").value),
+          status: document.getElementById("u_status").value,
+          harga_lepas_kunci: Number(document.getElementById("u_harga_lepas").value),
+          harga_dengan_sopir: Number(document.getElementById("u_harga_sopir").value),
+          vendor_nama: document.getElementById("u_vendor_nama").value.trim(),
+          vendor_whatsapp: document.getElementById("u_vendor_whatsapp").value.trim(),
+        };
+
+        if (fotoDepanFile) payload.foto_depan = await uploadFoto(fotoDepanFile, "depan");
+        if (fotoSampingFile) payload.foto_samping = await uploadFoto(fotoSampingFile, "samping");
+        if (fotoDashboardFile) payload.foto_dashboard = await uploadFoto(fotoDashboardFile, "dashboard");
+
+        let error;
+        if (editId) {
+          ({ error } = await supabaseClient.from("units").update(payload).eq("id", editId));
+        } else {
+          // Unit yang diinput admin tidak terikat ke akun vendor manapun (vendor_id null),
+          // datanya dicatat lewat kolom vendor_nama/vendor_whatsapp saja.
+          ({ error } = await supabaseClient.from("units").insert(payload));
+        }
+
+        if (error) {
+          console.error(error);
+          msg.innerHTML = `<span style="color:#ff9d9d">Gagal menyimpan: ${error.message}</span>`;
+          return;
+        }
+        msg.innerHTML = `<span style="color:var(--accent)">Tersimpan.</span>`;
+        toggleFormUnit(false);
+        loadUnits();
+      };
+
+      document.getElementById("filterUnitStatus").onchange = renderUnitTable;
+
+      // ---------------- BOOKING ----------------
+      async function loadBookings() {
+        const { data, error } = await supabaseClient.from("bookings").select("*").order("created_at", { ascending: false });
+        if (error) {
+          console.error(error);
+          return;
+        }
+        allBookings = data || [];
+        renderBookingTable();
+        renderStats();
+      }
+
+      function renderBookingTable() {
+        const tbody = document.getElementById("booking_items");
+        const filterVal = document.getElementById("filterBookingStatus").value;
+        const list = filterVal ? allBookings.filter((b) => b.status === filterVal) : allBookings;
+        tbody.innerHTML = "";
+        if (!list.length) {
+          tbody.innerHTML = `<tr><td colspan="8" style="color:var(--text-muted)">Belum ada booking masuk.</td></tr>`;
+          return;
+        }
+        for (const b of list) {
+          const unit = allUnits.find((u) => u.id === b.unit_id);
+          const modeLabel = b.mode_sewa === "self_drive" ? "Lepas Kunci" : "Dengan Sopir";
+          tbody.insertAdjacentHTML(
+            "beforeend",
+            `<tr>
+              <td>${unit ? unit.brand + " " + (unit.model || "") : b.unit_id}</td>
+              <td>${unit ? unit.vendor_nama || "-" : "-"}</td>
+              <td>${b.nama_customer}</td>
+              <td><a href="https://wa.me/${b.whatsapp_customer.replace(/^0/, "62")}" target="_blank" class="wa-link">${b.whatsapp_customer}</a></td>
+              <td>${b.tanggal_mulai} s/d ${b.tanggal_selesai}</td>
+              <td>${modeLabel}</td>
+              <td>${formatRupiah(b.total_harga)}</td>
+              <td>
+                <select class="form-control form-control-sm booking-status" data-id="${b.id}" data-unit="${b.unit_id}" data-mulai="${b.tanggal_mulai}" data-selesai="${b.tanggal_selesai}">
+                  <option value="menunggu_konfirmasi" ${b.status === "menunggu_konfirmasi" ? "selected" : ""}>Menunggu Konfirmasi</option>
+                  <option value="dikonfirmasi" ${b.status === "dikonfirmasi" ? "selected" : ""}>Dikonfirmasi</option>
+                  <option value="ditolak" ${b.status === "ditolak" ? "selected" : ""}>Ditolak</option>
+                  <option value="selesai" ${b.status === "selesai" ? "selected" : ""}>Selesai</option>
+                </select>
+              </td>
+            </tr>`
+          );
+        }
+        document.querySelectorAll(".booking-status").forEach((sel) => {
+          sel.onchange = async function () {
+            const id = this.dataset.id;
+            const status = this.value;
+            const { error } = await supabaseClient.from("bookings").update({ status }).eq("id", id);
+            if (error) {
+              alert("Gagal update status: " + error.message);
+              return;
+            }
+            const b = allBookings.find((x) => x.id === id);
+            if (b) b.status = status;
+            renderStats();
+            if (status === "dikonfirmasi") {
+              const tambahBlackout = confirm(
+                "Booking ditandai dikonfirmasi. Tambahkan tanggal ini otomatis ke daftar tidak tersedia sekarang?"
+              );
+              if (tambahBlackout) {
+                await supabaseClient.from("blackout_dates").insert({
+                  unit_id: this.dataset.unit,
+                  tanggal_mulai: this.dataset.mulai,
+                  tanggal_selesai: this.dataset.selesai,
+                  alasan: "Booking dikonfirmasi #" + id.slice(0, 8),
+                });
+              }
+            }
+          };
+        });
+      }
+
+      document.getElementById("filterBookingStatus").onchange = renderBookingTable;
+
+      // ---------------- STATS ----------------
+      function renderStats() {
+        document.getElementById("stat_total_unit").textContent = allUnits.length;
+        document.getElementById("stat_published_unit").textContent = allUnits.filter((u) => u.status === "published").length;
+        document.getElementById("stat_pending_booking").textContent = allBookings.filter((b) => b.status === "menunggu_konfirmasi").length;
+      }
+
+      // ---------------- AUTH GATE ----------------
+      (async () => {
+        const { data } = await supabaseClient.auth.getSession();
+        if (!data.session) {
+          window.location.href = "login.html";
+          return;
+        }
+        const { data: profile, error: profileError } = await supabaseClient
+          .from("vendor_profiles")
+          .select("*")
+          .eq("id", data.session.user.id)
+          .single();
+
+        if (profileError || !profile) {
+          document.getElementById("authGate").innerHTML =
+            `<div class="alert alert-danger">Akun kamu belum terdaftar di tabel vendor_profiles. Hubungi admin lain untuk didaftarkan.</div>`;
+          return;
+        }
+
+        if (profile.role !== "admin") {
+          window.location.href = "vendor-dashboard.html";
+          return;
+        }
+
+        currentUser = { id: data.session.user.id, nama: profile.nama, role: profile.role };
+        document.getElementById("navbarUsername").textContent = profile.nama;
+        document.getElementById("authGate").style.display = "none";
+        document.getElementById("dashboardContent").style.display = "block";
+        await loadUnits();
+        await loadBookings();
+      })();
+    </script>
+  </body>
+</html>
