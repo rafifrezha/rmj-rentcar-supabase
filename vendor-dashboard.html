@@ -224,7 +224,7 @@
           tbody.insertAdjacentHTML(
             "beforeend",
             `<tr>
-              <td>${u.foto_depan ? `<img src="${u.foto_depan}" style="width:70px;height:45px;object-fit:cover;border-radius:6px;">` : "-"}</td>
+              <td><img src="${u.foto_depan || "https://via.placeholder.com/400x225?text=Foto+Unit"}" style="width:70px;height:45px;object-fit:cover;border-radius:6px;"></td>
               <td>${u.brand} ${u.model || ""}</td>
               <td>${u.tahun}</td>
               <td>${formatRupiah(u.harga_lepas_kunci)}</td>
