@@ -33,17 +33,39 @@ html {
 }
 
 body {
-  font-family: "Poppins", -apple-system, Segoe UI, Arial, sans-serif;
+  font-family:
+    "Poppins",
+    -apple-system,
+    Segoe UI,
+    Arial,
+    sans-serif;
   margin: 0;
   padding: 0;
   background-color: var(--bg-base);
   background-image:
-    radial-gradient(ellipse at 15% 0%, rgba(0, 224, 158, 0.10) 0%, transparent 45%),
-    radial-gradient(ellipse at 100% 20%, rgba(28, 198, 234, 0.08) 0%, transparent 45%),
-    linear-gradient(180deg, rgba(10, 14, 26, 0.55) 0%, rgba(10, 14, 26, 0.85) 55%, rgba(10, 14, 26, 0.96) 100%),
+    radial-gradient(
+      ellipse at 15% 0%,
+      rgba(0, 224, 158, 0.1) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 100% 20%,
+      rgba(28, 198, 234, 0.08) 0%,
+      transparent 45%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(10, 14, 26, 0.55) 0%,
+      rgba(10, 14, 26, 0.85) 55%,
+      rgba(10, 14, 26, 0.96) 100%
+    ),
     url("../assets/Frame.png");
   background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-  background-position: top left, top right, center, center top;
+  background-position:
+    top left,
+    top right,
+    center,
+    center top;
   background-size: cover, cover, cover, cover;
   background-attachment: fixed, fixed, fixed, fixed;
   color: var(--text-primary);
@@ -59,10 +81,18 @@ a {
   text-decoration: none;
 }
 
-::-webkit-input-placeholder { color: #7d879c; }
-::-moz-placeholder { color: #7d879c; }
-:-ms-input-placeholder { color: #7d879c; }
-::placeholder { color: #7d879c; }
+::-webkit-input-placeholder {
+  color: #7d879c;
+}
+::-moz-placeholder {
+  color: #7d879c;
+}
+:-ms-input-placeholder {
+  color: #7d879c;
+}
+::placeholder {
+  color: #7d879c;
+}
 
 /* ============================================================
    Navbar
@@ -85,7 +115,9 @@ a {
   font-size: 1rem;
   padding: 8px 16px !important;
   border-radius: var(--radius-sm);
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .navbar-nav .nav-link.active,
@@ -152,7 +184,9 @@ a {
   padding: 0;
   display: flex;
 }
-.user-badge button:hover { opacity: 1; }
+.user-badge button:hover {
+  opacity: 1;
+}
 
 .btn-brand-outline {
   border: 1.5px solid var(--accent);
@@ -162,7 +196,9 @@ a {
   border-radius: 999px;
   padding: 8px 22px;
   font-size: 0.95rem;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 .btn-brand-outline:hover {
   background: var(--accent) !important;
@@ -312,8 +348,12 @@ a {
 }
 
 @media (max-width: 600px) {
-  .hero-stats { margin-top: -20px; }
-  .hero-stat-card { flex: 1 1 100%; }
+  .hero-stats {
+    margin-top: -20px;
+  }
+  .hero-stat-card {
+    flex: 1 1 100%;
+  }
 }
 
 /* ============================================================
@@ -327,7 +367,10 @@ a {
   overflow: hidden;
   margin-bottom: 0;
   color: var(--text-primary);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .row .card:hover {
@@ -386,7 +429,9 @@ a {
   padding: 5px 0;
   font-size: 0.95rem;
 }
-.list-group-item b { color: var(--text-primary); }
+.list-group-item b {
+  color: var(--text-primary);
+}
 
 .badge.bg-primary {
   background: rgba(0, 224, 158, 0.15) !important;
@@ -467,8 +512,12 @@ input[type="date"] {
   padding: 11px 24px;
   transition: background 0.15s;
 }
-.btn-primary:hover { background: var(--accent-hover) !important; }
-.btn-primary:disabled { opacity: 0.5; }
+.btn-primary:hover {
+  background: var(--accent-hover) !important;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+}
 
 .btn-secondary {
   background: transparent !important;
@@ -477,7 +526,10 @@ input[type="date"] {
   border-radius: var(--radius-sm);
   padding: 11px 24px;
 }
-.btn-secondary:hover { border-color: var(--text-muted) !important; color: var(--text-primary) !important; }
+.btn-secondary:hover {
+  border-color: var(--text-muted) !important;
+  color: var(--text-primary) !important;
+}
 
 .btn-danger {
   background: rgba(255, 82, 82, 0.15) !important;
@@ -486,17 +538,31 @@ input[type="date"] {
   border-radius: var(--radius-sm);
   font-weight: 600;
 }
-.btn-danger:hover { background: rgba(255, 82, 82, 0.28) !important; }
+.btn-danger:hover {
+  background: rgba(255, 82, 82, 0.28) !important;
+}
 
 .alert {
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
   padding: 14px 18px;
 }
-.alert-danger { background: rgba(255, 82, 82, 0.1); color: #ff9d9d; }
-.alert-warning { background: rgba(255, 179, 0, 0.1); color: #ffcb66; }
-.alert-success { background: rgba(0, 224, 158, 0.1); color: var(--accent); }
-.alert-info { background: rgba(28, 198, 234, 0.1); color: var(--accent-cyan); }
+.alert-danger {
+  background: rgba(255, 82, 82, 0.1);
+  color: #ff9d9d;
+}
+.alert-warning {
+  background: rgba(255, 179, 0, 0.1);
+  color: #ffcb66;
+}
+.alert-success {
+  background: rgba(0, 224, 158, 0.1);
+  color: var(--accent);
+}
+.alert-info {
+  background: rgba(28, 198, 234, 0.1);
+  color: var(--accent-cyan);
+}
 
 /* ============================================================
    Tables
@@ -528,7 +594,9 @@ input[type="date"] {
   padding: 12px;
   font-size: 0.92rem;
 }
-.table-striped > tbody > tr:nth-of-type(odd) { background-color: rgba(255, 255, 255, 0.02); }
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
 
 /* ============================================================
    Login page
@@ -596,9 +664,16 @@ input[type="date"] {
 }
 
 @media (max-width: 860px) {
-  .login-card { flex-direction: column; }
-  .login-info-side { order: -1; padding: 40px 32px; }
-  .login-form-side { padding: 40px 32px; }
+  .login-card {
+    flex-direction: column;
+  }
+  .login-info-side {
+    order: -1;
+    padding: 40px 32px;
+  }
+  .login-form-side {
+    padding: 40px 32px;
+  }
 }
 
 /* ============================================================
@@ -641,8 +716,13 @@ input[type="date"] {
   gap: 10px;
   margin-bottom: 10px;
 }
-.footer-brand img { height: 34px; }
-.footer-brand span { font-weight: 700; color: var(--text-primary); }
+.footer-brand img {
+  height: 34px;
+}
+.footer-brand span {
+  font-weight: 700;
+  color: var(--text-primary);
+}
 
 .site-footer p {
   color: var(--text-muted);
@@ -660,7 +740,9 @@ input[type="date"] {
   font-size: 0.88rem;
   transition: color 0.15s;
 }
-.footer-links a:hover { color: var(--accent); }
+.footer-links a:hover {
+  color: var(--accent);
+}
 
 .footer-bottom {
   border-top: 1px solid var(--border-subtle);
@@ -679,9 +761,14 @@ input[type="date"] {
   gap: 6px;
   color: var(--text-muted);
   font-size: 0.9rem;
-  transition: color 0.15s, transform 0.15s;
+  transition:
+    color 0.15s,
+    transform 0.15s;
 }
-.back-link:hover { color: var(--accent); transform: translateX(-2px); }
+.back-link:hover {
+  color: var(--accent);
+  transform: translateX(-2px);
+}
 
 /* ============================================================
    Booking page layout
@@ -694,10 +781,15 @@ input[type="date"] {
 }
 
 @media (max-width: 900px) {
-  .booking-grid { grid-template-columns: 1fr; }
+  .booking-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.summary-card { position: sticky; top: 104px; }
+.summary-card {
+  position: sticky;
+  top: 104px;
+}
 
 .summary-photo {
   width: 100%;
@@ -707,7 +799,12 @@ input[type="date"] {
   margin-bottom: 16px;
   background: #0f1526;
 }
-.summary-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.summary-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
 .summary-title {
   color: var(--text-primary);
@@ -729,8 +826,13 @@ input[type="date"] {
   font-size: 0.88rem;
   color: var(--text-muted);
 }
-.spec-row:last-of-type { border-bottom: none; }
-.spec-row b { color: var(--text-primary); font-weight: 600; }
+.spec-row:last-of-type {
+  border-bottom: none;
+}
+.spec-row b {
+  color: var(--text-primary);
+  font-weight: 600;
+}
 
 .price-line {
   display: flex;
@@ -739,7 +841,10 @@ input[type="date"] {
   font-size: 0.9rem;
   color: var(--text-muted);
 }
-.price-line b { color: var(--text-primary); font-weight: 600; }
+.price-line b {
+  color: var(--text-primary);
+  font-weight: 600;
+}
 
 .price-total {
   display: flex;
@@ -762,7 +867,9 @@ input[type="date"] {
   margin: 30px 0 18px 0;
   font-size: 1rem;
 }
-.form-section-title:first-child { margin-top: 0; }
+.form-section-title:first-child {
+  margin-top: 0;
+}
 
 .icon-badge {
   flex-shrink: 0;
@@ -779,11 +886,190 @@ input[type="date"] {
 /* ============================================================
    Utility
    ============================================================ */
-.text-muted-custom { color: var(--text-muted) !important; }
-.wa-link { color: var(--accent) !important; font-weight: 600; }
+.text-muted-custom {
+  color: var(--text-muted) !important;
+}
+.wa-link {
+  color: var(--accent) !important;
+  font-weight: 600;
+}
 
 @media (max-width: 600px) {
-  body { padding-top: 76px; }
-  .card-body { padding: 16px; }
-  .login-form-side, .login-info-side { padding: 32px 22px; }
+  body {
+    padding-top: 76px;
+  }
+  .card-body {
+    padding: 16px;
+  }
+  .login-form-side,
+  .login-info-side {
+    padding: 32px 22px;
+  }
+}
+
+/* Tanggal yang TERSEDIA — hijau sesuai tema */
+.flatpickr-day:not(.flatpickr-disabled):not(.flatpickr-otherMonth) {
+  background: rgba(0, 200, 130, 0.12);
+  color: var(--accent, #00c882);
+}
+
+.flatpickr-day:not(.flatpickr-disabled):not(.flatpickr-otherMonth):hover {
+  background: rgba(0, 200, 130, 0.28);
+}
+
+/* Tanggal yang sedang dipilih user — tetap paling menonjol */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--accent, #00c882);
+  border-color: var(--accent, #00c882);
+  color: #0b1220;
+  font-weight: 700;
+}
+
+/* ============================================================
+   Flatpickr — dark theme override (samakan dengan design tokens)
+   ============================================================ */
+.flatpickr-input[readonly] {
+  cursor: pointer;
+}
+
+.form-control::placeholder {
+  color: #8b93a8;
+  opacity: 1;
+}
+
+/* Placeholder khusus untuk input Flatpickr (altInput) */
+.flatpickr-input::placeholder,
+input.form-control[readonly]::placeholder {
+  color: #8b93a8;
+  opacity: 1;
+}
+
+.flatpickr-calendar {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  font-family:
+    "Poppins",
+    -apple-system,
+    Segoe UI,
+    Arial,
+    sans-serif;
+}
+.flatpickr-calendar.arrowTop::before,
+.flatpickr-calendar.arrowTop::after {
+  border-bottom-color: var(--bg-navbar);
+}
+.flatpickr-calendar.arrowBottom::before,
+.flatpickr-calendar.arrowBottom::after {
+  border-top-color: var(--bg-navbar);
+}
+
+.flatpickr-months {
+  background: var(--bg-navbar);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: 6px 0;
+}
+.flatpickr-months .flatpickr-month {
+  color: var(--text-primary);
+  fill: var(--text-primary);
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+.flatpickr-current-month input.cur-year {
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  color: var(--text-muted);
+  fill: var(--text-muted);
+}
+.flatpickr-months .flatpickr-prev-month:hover,
+.flatpickr-months .flatpickr-next-month:hover {
+  color: var(--accent);
+  fill: var(--accent);
+}
+
+.flatpickr-weekdays {
+  background: var(--bg-navbar);
+}
+span.flatpickr-weekday {
+  background: var(--bg-navbar);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.flatpickr-days {
+  border-color: var(--border-subtle);
+}
+.dayContainer {
+  border-color: var(--border-subtle);
+}
+
+.flatpickr-day {
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+}
+.flatpickr-day.today {
+  border-color: var(--accent-cyan);
+}
+.flatpickr-day:hover,
+.flatpickr-day:focus {
+  background: rgba(0, 224, 158, 0.14);
+  border-color: transparent;
+  color: var(--text-primary);
+}
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-base);
+  font-weight: 700;
+}
+.flatpickr-day.inRange {
+  background: rgba(0, 224, 158, 0.12);
+  border-color: rgba(0, 224, 158, 0.12);
+  box-shadow:
+    -5px 0 0 rgba(0, 224, 158, 0.12),
+    5px 0 0 rgba(0, 224, 158, 0.12);
+}
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: #4b5568;
+}
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+  color: #6b7590;
+  text-decoration: line-through;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+.flatpickr-time {
+  background: var(--bg-navbar);
+  border-color: var(--border-subtle);
+}
+.flatpickr-time input {
+  color: var(--text-primary);
+}
+.flatpickr-time .numInputWrapper span.arrowUp:after {
+  border-bottom-color: var(--text-muted);
+}
+.flatpickr-time .numInputWrapper span.arrowDown:after {
+  border-top-color: var(--text-muted);
 }

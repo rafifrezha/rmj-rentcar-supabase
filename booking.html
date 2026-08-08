@@ -8,6 +8,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
@@ -77,6 +81,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/id.js"></script>
     <script src="js/supabase-client.js"></script>
     <script>
       document.getElementById("footerYear").textContent =
@@ -127,6 +133,28 @@
           new Date(mulaiA) <= new Date(selesaiB) &&
           new Date(mulaiB) <= new Date(selesaiA)
         );
+      }
+
+      // Format Date -> "YYYY-MM-DD" pakai komponen lokal (hindari pergeseran
+      // tanggal akibat konversi UTC dari toISOString()).
+      function formatDateLocal(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      // Ubah satu rentang tanggal_mulai..tanggal_selesai jadi array tanggal
+      // individual "YYYY-MM-DD", supaya bisa dipakai di opsi `disable` Flatpickr.
+      function expandRangeToDates(mulai, selesai) {
+        const dates = [];
+        const cur = new Date(mulai + "T00:00:00");
+        const end = new Date(selesai + "T00:00:00");
+        while (cur <= end) {
+          dates.push(formatDateLocal(cur));
+          cur.setDate(cur.getDate() + 1);
+        }
+        return dates;
       }
 
       async function init() {
@@ -183,11 +211,11 @@
               <div class="row">
                 <div class="col-6 mb-3">
                   <label class="form-label">Tanggal Mulai</label>
-                  <input type="date" id="tgl_mulai" class="form-control" required />
+                  <input type="text" id="tgl_mulai" class="form-control" placeholder="Pilih tanggal" autocomplete="off" required />
                 </div>
                 <div class="col-6 mb-3">
                   <label class="form-label">Tanggal Selesai</label>
-                  <input type="date" id="tgl_selesai" class="form-control" required />
+                  <input type="text" id="tgl_selesai" class="form-control" placeholder="Pilih tanggal" autocomplete="off" required />
                 </div>
               </div>
               <div class="mb-3" id="statusTanggal" style="font-size: 0.9rem"></div>
@@ -322,6 +350,51 @@
         }
 
         tglMulai.oninput = tglSelesai.oninput = hitungTotal;
+
+        // Tanggal yang sudah tidak tersedia (blackout admin + booking yang
+        // masih menunggu_konfirmasi/dikonfirmasi), di-expand jadi array
+        // tanggal individual untuk opsi `disable` Flatpickr.
+        const disabledDates = [
+          ...blackouts.flatMap((b) =>
+            expandRangeToDates(b.tanggal_mulai, b.tanggal_selesai),
+          ),
+          ...pendingBookings.flatMap((b) =>
+            expandRangeToDates(b.tanggal_mulai, b.tanggal_selesai),
+          ),
+        ];
+
+        const flatpickrBaseOptions = {
+          dateFormat: "Y-m-d",
+          altInput: true,
+          altFormat: "d M Y",
+          disableMobile: true,
+          locale: "id",
+          minDate: "today",
+          disable: disabledDates,
+        };
+
+        const tglMulaiFP = flatpickr(tglMulai, {
+          ...flatpickrBaseOptions,
+          onChange: function (selectedDates, dateStr) {
+            // Tanggal selesai tidak boleh sebelum tanggal mulai yang dipilih.
+            tglSelesaiFP.set("minDate", dateStr || "today");
+            if (
+              tglSelesai.value &&
+              dateStr &&
+              new Date(tglSelesai.value) < new Date(dateStr)
+            ) {
+              tglSelesaiFP.clear();
+            }
+            hitungTotal();
+          },
+        });
+
+        const tglSelesaiFP = flatpickr(tglSelesai, {
+          ...flatpickrBaseOptions,
+          onChange: function () {
+            hitungTotal();
+          },
+        });
 
         submitBtn.onclick = async () => {
           const nama = document.getElementById("nama_customer").value.trim();
