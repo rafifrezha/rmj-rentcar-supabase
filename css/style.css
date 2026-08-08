@@ -1536,17 +1536,24 @@ span.flatpickr-weekday {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
+  min-width: 0;
 }
 
 .unit-price-label {
   color: var(--text-muted);
   font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .unit-price-value {
   color: var(--accent);
   font-weight: 700;
   font-size: 0.86rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Layar HP: foto dibikin lebih tinggi/besar (rasio lebih ke persegi)
@@ -1569,10 +1576,14 @@ span.flatpickr-weekday {
     margin-bottom: 10px;
   }
   .unit-card .unit-price-grid {
+    grid-template-columns: 1fr;
     gap: 6px;
   }
   .unit-card .unit-price-tile {
     padding: 6px 8px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
   .unit-card .unit-price-label {
     font-size: 0.64rem;
