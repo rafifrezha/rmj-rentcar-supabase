@@ -653,8 +653,59 @@
           return;
         }
         allBookings = data || [];
+        await autoSelesaikanBookingLewatTanggal();
         renderBookingTable();
         renderStats();
+      }
+
+      // Booking berstatus "dikonfirmasi" yang tanggal_selesai-nya sudah
+      // lewat hari ini otomatis ditandai "selesai" — supaya admin nggak
+      // perlu ubah status manual satu-satu tiap kali sewa kelar. Cuma jalan
+      // untuk yang "dikonfirmasi" (booking yang memang benar-benar
+      // berjalan); "menunggu_konfirmasi" dibiarkan apa adanya karena butuh
+      // keputusan manual admin.
+      async function autoSelesaikanBookingLewatTanggal() {
+        const today = getTodayLocal();
+        const lewatTanggal = allBookings.filter(
+          (b) => b.status === "dikonfirmasi" && b.tanggal_selesai < today,
+        );
+        if (!lewatTanggal.length) return;
+
+        const ids = lewatTanggal.map((b) => b.id);
+        // .select() dipasang supaya kita tahu betulan baris mana yang
+        // ke-update di database (lihat catatan yang sama di booking-delete)
+        // — tanpa ini update() tetap "sukses" walau RLS diam-diam
+        // memblokirnya dan status di tampilan jadi tidak sinkron dengan DB.
+        const { data: updated, error } = await supabaseClient
+          .from("bookings")
+          .update({ status: "selesai" })
+          .in("id", ids)
+          .select();
+        if (error) {
+          console.error("Gagal auto-selesaikan booking:", error);
+          return;
+        }
+        const updatedIds = new Set((updated || []).map((b) => b.id));
+        allBookings.forEach((b) => {
+          if (updatedIds.has(b.id)) b.status = "selesai";
+        });
+      }
+
+      // Warnai dropdown status booking sesuai nilainya (dikonfirmasi hijau,
+      // ditolak merah, menunggu konfirmasi kuning, selesai biru) — dipanggil
+      // tiap kali dropdown dirender ulang & tiap kali statusnya diganti.
+      const BOOKING_STATUS_COLOR_CLASS = {
+        menunggu_konfirmasi: "status-color-warn",
+        dikonfirmasi: "status-color-success",
+        ditolak: "status-color-danger",
+        selesai: "status-color-info",
+      };
+      function applyBookingStatusColor(sel) {
+        const wrap = sel.closest(".custom-select");
+        if (!wrap) return;
+        wrap.classList.remove(...Object.values(BOOKING_STATUS_COLOR_CLASS));
+        const cls = BOOKING_STATUS_COLOR_CLASS[sel.value];
+        if (cls) wrap.classList.add(cls);
       }
 
       function renderBookingTable() {
@@ -679,22 +730,28 @@
               <td>${unit ? unit.vendor_nama || "-" : "-"}</td>
               <td>${b.nama_customer}</td>
               <td><a href="https://wa.me/${b.whatsapp_customer.replace(/^0/, "62")}" target="_blank" class="wa-link">${b.whatsapp_customer}</a></td>
-              <td>${b.tanggal_mulai} s/d ${b.tanggal_selesai}</td>
+              <td>${formatTanggalIndo(b.tanggal_mulai)} &ndash; ${formatTanggalIndo(b.tanggal_selesai)}</td>
               <td>${modeLabel}</td>
               <td>${formatRupiah(b.total_harga)}</td>
               <td>
-                <select class="form-control form-control-sm booking-status" data-id="${b.id}" data-unit="${b.unit_id}" data-mulai="${b.tanggal_mulai}" data-selesai="${b.tanggal_selesai}">
-                  <option value="menunggu_konfirmasi" ${b.status === "menunggu_konfirmasi" ? "selected" : ""}>Menunggu Konfirmasi</option>
-                  <option value="dikonfirmasi" ${b.status === "dikonfirmasi" ? "selected" : ""}>Dikonfirmasi</option>
-                  <option value="ditolak" ${b.status === "ditolak" ? "selected" : ""}>Ditolak</option>
-                  <option value="selesai" ${b.status === "selesai" ? "selected" : ""}>Selesai</option>
-                </select>
+                <div class="d-flex align-items-center gap-2 booking-status-row">
+                  <select class="form-control form-control-sm booking-status" data-id="${b.id}" data-unit="${b.unit_id}" data-mulai="${b.tanggal_mulai}" data-selesai="${b.tanggal_selesai}">
+                    <option value="menunggu_konfirmasi" ${b.status === "menunggu_konfirmasi" ? "selected" : ""}>Menunggu Konfirmasi</option>
+                    <option value="dikonfirmasi" ${b.status === "dikonfirmasi" ? "selected" : ""}>Dikonfirmasi</option>
+                    <option value="ditolak" ${b.status === "ditolak" ? "selected" : ""}>Ditolak</option>
+                    <option value="selesai" ${b.status === "selesai" ? "selected" : ""}>Selesai</option>
+                  </select>
+                  <button type="button" class="btn-icon-danger booking-delete" data-id="${b.id}" title="Hapus booking" aria-label="Hapus booking">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16Z"/><path d="M10 11v6M14 11v6"/></svg>
+                  </button>
+                </div>
               </td>
             </tr>`,
           );
         }
         document.querySelectorAll(".booking-status").forEach((sel) => {
           enhanceSelect(sel);
+          applyBookingStatusColor(sel);
           sel.onchange = async function () {
             const id = this.dataset.id;
             const status = this.value;
@@ -708,6 +765,7 @@
             }
             const b = allBookings.find((x) => x.id === id);
             if (b) b.status = status;
+            applyBookingStatusColor(this);
             renderStats();
             if (status === "dikonfirmasi") {
               const tambahBlackout = confirm(
@@ -722,6 +780,45 @@
                 });
               }
             }
+          };
+        });
+        document.querySelectorAll(".booking-delete").forEach((btn) => {
+          btn.onclick = async function () {
+            const id = this.dataset.id;
+            const b = allBookings.find((x) => x.id === id);
+            const label = b
+              ? `${b.nama_customer} (${formatTanggalIndo(b.tanggal_mulai)} – ${formatTanggalIndo(b.tanggal_selesai)})`
+              : id;
+            if (
+              !confirm(
+                `Hapus booking ${label} secara permanen? Tindakan ini tidak bisa dibatalkan.`,
+              )
+            ) {
+              return;
+            }
+            // .select() dipasang supaya kita tahu betulan berapa baris yang
+            // kehapus di database — tanpa ini, delete() tetap balas "sukses"
+            // (tanpa error) walau RLS Supabase diam-diam memblokirnya dan 0
+            // baris kehapus, dan tampilan jadi keliatan terhapus padahal di
+            // database masih ada.
+            const { data: deleted, error } = await supabaseClient
+              .from("bookings")
+              .delete()
+              .eq("id", id)
+              .select();
+            if (error) {
+              alert("Gagal menghapus booking: " + error.message);
+              return;
+            }
+            if (!deleted || deleted.length === 0) {
+              alert(
+                "Booking tidak berhasil dihapus di database (kemungkinan diblokir RLS policy Supabase pada tabel bookings — pastikan ada policy DELETE untuk role admin). Data TIDAK dihapus dari tampilan.",
+              );
+              return;
+            }
+            allBookings = allBookings.filter((x) => x.id !== id);
+            renderBookingTable();
+            renderStats();
           };
         });
       }

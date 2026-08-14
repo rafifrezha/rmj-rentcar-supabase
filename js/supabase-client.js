@@ -54,6 +54,36 @@ function hitungJumlahHari(tanggalMulai, tanggalSelesai) {
 }
 
 // ============================================================
+// HELPER: format Date -> "YYYY-MM-DD" pakai komponen lokal (hindari
+// pergeseran tanggal akibat konversi UTC dari toISOString()).
+// ============================================================
+function formatDateLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function getTodayLocal() {
+  return formatDateLocal(new Date());
+}
+
+// ============================================================
+// HELPER: format tanggal "YYYY-MM-DD" -> "21 Agu 2026" (lebih enak
+// dibaca daripada format ISO mentah, dipakai di tabel admin dkk.)
+// ============================================================
+const BULAN_PENDEK_ID = [
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+];
+function formatTanggalIndo(tanggalStr) {
+  if (!tanggalStr) return "-";
+  const d = new Date(tanggalStr + "T00:00:00");
+  if (isNaN(d)) return tanggalStr;
+  return `${d.getDate()} ${BULAN_PENDEK_ID[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// ============================================================
 // HELPER: bangun link wa.me dengan pesan sudah terisi
 // ============================================================
 function buildWhatsAppLink(pesan) {

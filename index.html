@@ -21,15 +21,22 @@
             alt="Rumah Mobil Jogja - Rental Mobil"
           />
         </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navContent"
-          style="border-color: var(--border-subtle)"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+        <div class="navbar-lang-toggle-group">
+          <!-- Ditaruh di luar .navbar-collapse (bukan di dalam menu
+               hamburger) supaya orang langsung lihat ada opsi ID/EN
+               tanpa perlu buka menu dulu — sebelumnya kesembunyi di
+               dalam collapse. -->
+          <div id="langSwitcher"></div>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navContent"
+            style="border-color: var(--border-subtle)"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
         <div class="collapse navbar-collapse" id="navContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
             <li class="nav-item">
@@ -73,7 +80,6 @@
             >
           -->
             </div>
-            <div id="langSwitcher"></div>
           </div>
         </div>
       </div>
@@ -153,7 +159,74 @@
         </div>
       </div>
 
-      <div class="mb-4" style="margin-top: 48px">
+      <div class="mb-4" style="margin-top: 56px">
+        <span class="eyebrow-label" data-i18n="why_eyebrow">Kenapa Kami</span>
+        <h2 class="page-heading" style="font-size: 1.8rem" data-i18n="why_heading">
+          Kenapa Rumah Mobil Jogja?
+        </h2>
+        <p class="page-subtext" data-i18n="why_subtext">
+          Nyaman, praktis, dan mudah dihubungi.
+        </p>
+      </div>
+      <div class="row g-3 g-lg-4">
+        <div class="col-6 col-lg-3">
+          <div class="card h-100 feature-card">
+            <div class="card-body text-center">
+              <div class="feature-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M3 12l1.5-4.5A2 2 0 0 1 6.4 6h11.2a2 2 0 0 1 1.9 1.5L21 12" />
+                  <path d="M3 12h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5Z" />
+                  <path d="M7 16h.01M17 16h.01" />
+                </svg>
+              </div>
+              <h3 class="feature-title" data-i18n="why1_title">Armada Pilihan</h3>
+              <p class="feature-desc" data-i18n="why1_desc">Avanza, Veloz, Innova/Reborn dan Hiace.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card h-100 feature-card">
+            <div class="card-body text-center">
+              <div class="feature-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M9 20l-6-3V4l6 3m0 13l6-3m-6 3V7m6 10l6 3V6l-6-3m0 14V4m0 0L9 7" />
+                </svg>
+              </div>
+              <h3 class="feature-title" data-i18n="why2_title">Fokus Jogja</h3>
+              <p class="feature-desc" data-i18n="why2_desc">Melayani perjalanan wisata dan kebutuhan transportasi di Yogyakarta dan sekitarnya.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card h-100 feature-card">
+            <div class="card-body text-center">
+              <div class="feature-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
+                </svg>
+              </div>
+              <h3 class="feature-title" data-i18n="why3_title">Pelayanan Ramah</h3>
+              <p class="feature-desc" data-i18n="why3_desc">Konsultasikan kendaraan sesuai jumlah penumpang dan tujuan.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card h-100 feature-card">
+            <div class="card-body text-center">
+              <div class="feature-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="6" y="2" width="12" height="20" rx="2" />
+                  <path d="M11 18h2" />
+                </svg>
+              </div>
+              <h3 class="feature-title" data-i18n="why4_title">Mudah Reservasi</h3>
+              <p class="feature-desc" data-i18n="why4_desc">Cek ketersediaan kendaraan langsung di website ini.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4" style="margin-top: 56px">
         <span class="eyebrow-label" data-i18n="catalog_eyebrow">Katalog Unit</span>
         <h1 class="page-heading" style="font-size: 2rem" data-i18n="catalog_heading">
           Sewa Kendaraan di Jogja, Tanpa Ribet
@@ -225,6 +298,54 @@
                 ></div>
                 <div class="skeleton-line" style="width: 40%"></div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4" style="margin-top: 56px">
+        <span class="eyebrow-label" data-i18n="dest_eyebrow">Wisata Jogja</span>
+        <h2 class="page-heading" style="font-size: 1.8rem" data-i18n="dest_heading">
+          Destinasi Hits Jogja
+        </h2>
+        <p class="page-subtext" data-i18n="dest_subtext">
+          Inspirasi perjalanan Anda selama di Yogyakarta.
+        </p>
+      </div>
+      <div class="row g-3 g-lg-4">
+        <div class="col-6 col-lg-3">
+          <div class="card h-100 dest-card">
+            <div class="dest-card-icon">🌋</div>
+            <div class="card-body">
+              <h3 class="dest-title" data-i18n="dest1_title">Merapi</h3>
+              <p class="dest-desc" data-i18n="dest1_desc">Menikmati kawasan Kaliurang dan Merapi.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card h-100 dest-card">
+            <div class="dest-card-icon">🛕</div>
+            <div class="card-body">
+              <h3 class="dest-title" data-i18n="dest2_title">Prambanan</h3>
+              <p class="dest-desc" data-i18n="dest2_desc">Wisata sejarah dan budaya yang ikonik.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card h-100 dest-card">
+            <div class="dest-card-icon">🏯</div>
+            <div class="card-body">
+              <h3 class="dest-title" data-i18n="dest3_title">Borobudur</h3>
+              <p class="dest-desc" data-i18n="dest3_desc">Pilihan perjalanan populer dari Yogyakarta.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card h-100 dest-card">
+            <div class="dest-card-icon">🏖️</div>
+            <div class="card-body">
+              <h3 class="dest-title" data-i18n="dest4_title">Pantai Selatan</h3>
+              <p class="dest-desc" data-i18n="dest4_desc">Jelajahi pantai-pantai Gunungkidul.</p>
             </div>
           </div>
         </div>

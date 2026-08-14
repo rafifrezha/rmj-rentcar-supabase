@@ -27,6 +27,19 @@ const I18N = {
     hero_stat3_value: "Deposit Flat",
     hero_stat3_label: "Booking transparan, tanpa biaya siluman",
 
+    why_eyebrow: "Kenapa Kami",
+    why_heading: "Kenapa Rumah Mobil Jogja?",
+    why_subtext: "Nyaman, praktis, dan mudah dihubungi.",
+    why1_title: "Armada Pilihan",
+    why1_desc: "Avanza, Veloz, Innova/Reborn dan Hiace.",
+    why2_title: "Fokus Jogja",
+    why2_desc:
+      "Melayani perjalanan wisata dan kebutuhan transportasi di Yogyakarta dan sekitarnya.",
+    why3_title: "Pelayanan Ramah",
+    why3_desc: "Konsultasikan kendaraan sesuai jumlah penumpang dan tujuan.",
+    why4_title: "Mudah Reservasi",
+    why4_desc: "Cek ketersediaan kendaraan langsung di website ini.",
+
     catalog_eyebrow: "Katalog Unit",
     catalog_heading: "Sewa Kendaraan di Jogja, Tanpa Ribet",
     catalog_subtext:
@@ -42,6 +55,18 @@ const I18N = {
     unit_fetch_error:
       "Tidak dapat mengambil data unit dari server. Pastikan js/supabase-client.js sudah diisi Project URL &amp; anon key.",
 
+    dest_eyebrow: "Wisata Jogja",
+    dest_heading: "Destinasi Hits Jogja",
+    dest_subtext: "Inspirasi perjalanan Anda selama di Yogyakarta.",
+    dest1_title: "Merapi",
+    dest1_desc: "Menikmati kawasan Kaliurang dan Merapi.",
+    dest2_title: "Prambanan",
+    dest2_desc: "Wisata sejarah dan budaya yang ikonik.",
+    dest3_title: "Borobudur",
+    dest3_desc: "Pilihan perjalanan populer dari Yogyakarta.",
+    dest4_title: "Pantai Selatan",
+    dest4_desc: "Jelajahi pantai-pantai Gunungkidul.",
+
     footer_tagline:
       "Sewa mobil terpercaya di Jogja — lepas kunci atau dengan sopir.",
     footer_help: "Butuh bantuan? Hubungi admin lewat WhatsApp saat booking.",
@@ -56,6 +81,9 @@ const I18N = {
       "Gagal memuat data unit. Pastikan js/supabase-client.js sudah diisi dengan benar.",
     footer_help_booking:
       "Butuh bantuan? Admin akan membantu lewat WhatsApp setelah kamu klik tombol konfirmasi.",
+
+    currency_label: "Mata Uang",
+    currency_note: "Perkiraan — pembayaran tetap dalam Rupiah.",
 
     summary_capacity: "Kapasitas (lepas kunci)",
     summary_days: "Jumlah Hari",
@@ -88,6 +116,12 @@ const I18N = {
     label_catatan: "Catatan (opsional)",
     submit_btn: "Konfirmasi &amp; Kirim ke WhatsApp",
     submit_btn_saving: "Menyimpan...",
+    mobile_bar_cta: "Lanjut",
+
+    confirm_modal_title: "Konfirmasi Pesanan",
+    confirm_modal_subtext: "Periksa kembali detail sewa sebelum dikirim.",
+    confirm_modal_cancel: "Periksa Lagi",
+    confirm_modal_ok: "Ya, Kirim Pesanan",
 
     err_end_before_start: "Tanggal selesai harus setelah tanggal mulai.",
     warn_min_days: "Minimal sewa {n} hari — otomatis dihitung {n} hari.",
@@ -135,6 +169,19 @@ const I18N = {
     hero_stat3_value: "Flat Deposit",
     hero_stat3_label: "Transparent booking, no hidden fees",
 
+    why_eyebrow: "Why Us",
+    why_heading: "Why Rumah Mobil Jogja?",
+    why_subtext: "Comfortable, practical, and easy to reach.",
+    why1_title: "Curated Fleet",
+    why1_desc: "Avanza, Veloz, Innova/Reborn and Hiace.",
+    why2_title: "Jogja Focused",
+    why2_desc:
+      "Serving trips and transportation needs across Yogyakarta and its surroundings.",
+    why3_title: "Friendly Service",
+    why3_desc: "Get advice on the right vehicle for your passengers and destination.",
+    why4_title: "Easy Booking",
+    why4_desc: "Check vehicle availability right here on this website.",
+
     catalog_eyebrow: "Vehicle Catalog",
     catalog_heading: "Rent a Vehicle in Jogja, Hassle-Free",
     catalog_subtext:
@@ -150,6 +197,22 @@ const I18N = {
     unit_fetch_error:
       "Unable to fetch vehicle data from the server. Make sure js/supabase-client.js has the Project URL &amp; anon key filled in.",
 
+    dest_eyebrow: "Jogja Tourism",
+    dest_heading: "Popular Destinations in Jogja",
+    dest_subtext: "Inspiration for your trip around Yogyakarta.",
+    dest1_title: "Merapi",
+    dest1_desc: "Enjoy the Kaliurang and Merapi area.",
+    dest2_title: "Prambanan",
+    dest2_desc: "An iconic historical and cultural site.",
+    dest3_title: "Borobudur",
+    dest3_desc: "A popular trip choice from Yogyakarta.",
+    dest4_title: "Southern Beaches",
+    dest4_desc: "Explore the beaches of Gunungkidul.",
+
+    cta_heading: "Need a Car for Your Jogja Getaway?",
+    cta_subtext: "Contact Rumah Mobil Jogja to check vehicle availability.",
+    cta_button: "WhatsApp Now",
+
     footer_tagline:
       "Trusted car rental in Jogja — self-drive or with driver.",
     footer_help: "Need help? Contact admin via WhatsApp during booking.",
@@ -164,6 +227,9 @@ const I18N = {
       "Failed to load vehicle data. Make sure js/supabase-client.js is configured correctly.",
     footer_help_booking:
       "Need help? Admin will assist via WhatsApp after you click the confirm button.",
+
+    currency_label: "Currency",
+    currency_note: "Estimate only — payment is still in Rupiah.",
 
     summary_capacity: "Capacity (self-drive)",
     summary_days: "Number of Days",
@@ -196,6 +262,12 @@ const I18N = {
     label_catatan: "Notes (optional)",
     submit_btn: "Confirm &amp; Send via WhatsApp",
     submit_btn_saving: "Saving...",
+    mobile_bar_cta: "Continue",
+
+    confirm_modal_title: "Confirm Booking",
+    confirm_modal_subtext: "Please review your rental details before sending.",
+    confirm_modal_cancel: "Review Again",
+    confirm_modal_ok: "Yes, Send Booking",
 
     err_end_before_start: "End date must be after the start date.",
     warn_min_days: "Minimum rental {n} days — automatically set to {n} days.",

@@ -25,15 +25,22 @@
             alt="Rumah Mobil Jogja - Rental Mobil"
           />
         </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navContent"
-          style="border-color: var(--border-subtle)"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+        <div class="navbar-lang-toggle-group">
+          <!-- Ditaruh di luar .navbar-collapse (bukan di dalam menu
+               hamburger) supaya orang langsung lihat ada opsi ID/EN
+               tanpa perlu buka menu dulu — sebelumnya kesembunyi di
+               dalam collapse. -->
+          <div id="langSwitcher"></div>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navContent"
+            style="border-color: var(--border-subtle)"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
         <div class="collapse navbar-collapse" id="navContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
             <li class="nav-item">
@@ -50,9 +57,6 @@
               >
             </li>
           </ul>
-          <div class="d-flex">
-            <div id="langSwitcher"></div>
-          </div>
         </div>
       </div>
     </nav>
@@ -83,6 +87,49 @@
           >
             Memuat data unit...
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar total harga yang nempel di bawah layar (khusus mobile) —
+         supaya saat scroll ngisi form, user tetap lihat berapa yang
+         harus dibayar tanpa harus balik scroll ke atas. Diisi/di-toggle
+         dari renderForm()/hitungTotal() di script bawah. -->
+    <div id="mobileTotalBar" class="mobile-total-bar">
+      <div class="mobile-total-bar-info">
+        <span class="mobile-total-bar-label" id="mtbLabel">Total</span>
+        <span class="mobile-total-bar-value" id="mtbValue">&mdash;</span>
+      </div>
+      <button type="button" class="btn-booknow" id="mtbCta">Lanjut</button>
+    </div>
+
+    <!-- Popup konfirmasi — muncul saat klik submit, isinya ringkasan
+         pesanan supaya user cek dulu sebelum benar-benar dikirim.
+         Dibuka/diisi dari submitBtn.onclick di script bawah. -->
+    <div class="modal-overlay" id="confirmModalOverlay">
+      <div class="modal-confirm-card">
+        <h3 data-i18n="confirm_modal_title">Konfirmasi Pesanan</h3>
+        <p class="modal-confirm-subtext" data-i18n="confirm_modal_subtext">
+          Periksa kembali detail sewa sebelum dikirim.
+        </p>
+        <div class="modal-confirm-body" id="confirmModalBody"></div>
+        <div class="modal-confirm-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            id="confirmModalCancel"
+            data-i18n="confirm_modal_cancel"
+          >
+            Periksa Lagi
+          </button>
+          <button
+            type="button"
+            class="btn-primary"
+            id="confirmModalOk"
+            data-i18n="confirm_modal_ok"
+          >
+            Ya, Kirim Pesanan
+          </button>
         </div>
       </div>
     </div>
@@ -152,6 +199,45 @@
       // tanpa perlu fetch ulang ke Supabase.
       let unit, blackouts, pendingBookings;
 
+      // ============================================================
+      // Konversi mata uang (opsional, cuma tampil di mode EN) — harga
+      // sebenarnya di database & pesan WhatsApp ke admin TETAP Rupiah,
+      // ini murni tampilan referensi buat penyewa asing.
+      // ============================================================
+      let selectedCurrency = "IDR";
+      let currencyRates = null; // { USD: x, SGD: x, MYR: x, ... } relatif ke 1 IDR
+      const CURRENCY_SYMBOL = { USD: "$", SGD: "S$", MYR: "RM" };
+
+      async function fetchCurrencyRates() {
+        try {
+          const res = await fetch("https://open.er-api.com/v6/latest/IDR");
+          const json = await res.json();
+          if (json.result === "success" && json.rates) {
+            currencyRates = json.rates;
+          }
+        } catch (err) {
+          console.error("Gagal mengambil kurs mata uang:", err);
+        }
+      }
+      fetchCurrencyRates();
+
+      // Bungkus formatRupiah() — kalau lagi mode EN dan user pilih mata
+      // uang asing (dan kursnya sudah kebaca), tampilkan hasil konversi;
+      // selain itu tetap Rupiah seperti biasa.
+      function formatPrice(idrAmount) {
+        if (
+          getLang() === "en" &&
+          selectedCurrency !== "IDR" &&
+          currencyRates &&
+          currencyRates[selectedCurrency]
+        ) {
+          const converted = idrAmount * currencyRates[selectedCurrency];
+          const symbol = CURRENCY_SYMBOL[selectedCurrency] || "";
+          return `${symbol}${converted.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+        return formatRupiah(idrAmount);
+      }
+
       if (!unitId) {
         unitDetail.innerHTML = `<div class="alert alert-danger">${t("unit_not_found")} <a href="index.html" class="wa-link">${t("back_link").replace("&larr; ", "")}</a>.</div>`;
       } else {
@@ -198,14 +284,9 @@
         );
       }
 
-      // Format Date -> "YYYY-MM-DD" pakai komponen lokal (hindari pergeseran
-      // tanggal akibat konversi UTC dari toISOString()).
-      function formatDateLocal(d) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-        return `${y}-${m}-${day}`;
-      }
+      // formatDateLocal() dipakai di sini juga tapi sudah didefinisikan di
+      // js/supabase-client.js (shared) supaya nggak dobel dengan
+      // admin-dashboard.html.
 
       // Ubah satu rentang tanggal_mulai..tanggal_selesai jadi array tanggal
       // individual "YYYY-MM-DD", supaya bisa dipakai di opsi `disable` Flatpickr.
@@ -240,7 +321,20 @@
       // Dipanggil sekali dari init(), lalu dipanggil ulang tiap kali bahasa
       // (ID/EN) diganti lewat event "langchange" — supaya semua label ikut
       // berubah tanpa perlu fetch ulang atau reload halaman.
+      // Opsi <option> select mode sewa — dipisah jadi fungsi karena perlu
+      // dibangun ulang tiap kali mata uang tampilan diganti (lihat
+      // refreshPricesForCurrency()), bukan cuma sekali saat render awal.
+      function modeOptionsHtml() {
+        return `
+          <option value="with_driver">${t("option_with_driver")} — ${formatPrice(unit.harga_dengan_sopir)}/${getLang() === "en" ? "day" : "hari"}, ${t("option_capacity", { n: unit.kapasitas - 1 })}</option>
+          <option value="self_drive">${t("option_self_drive")} — ${formatPrice(unit.harga_lepas_kunci)}/${getLang() === "en" ? "day" : "hari"}, ${t("option_capacity", { n: unit.kapasitas })}</option>`;
+      }
+
       function renderForm() {
+        // Fitur konversi mata uang cuma tersedia di mode EN — begitu balik
+        // ke ID, paksa balik ke Rupiah supaya nggak nyangkut di state asing.
+        if (getLang() !== "en") selectedCurrency = "IDR";
+
         unitDetail.innerHTML = `
           <aside class="summary-card card">
             <div class="card-body">
@@ -250,15 +344,30 @@
               <div class="summary-title">${unit.brand} ${unit.model || ""}</div>
               <div class="summary-subtitle">${unit.tahun} &middot; ${unit.transmisi}</div>
 
+              ${
+                getLang() === "en"
+                  ? `<div class="currency-switch">
+                      <label class="form-label">${t("currency_label")}</label>
+                      <select id="currencySelect" class="form-control form-control-sm">
+                        <option value="IDR">IDR</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="SGD">SGD (S$)</option>
+                        <option value="MYR">MYR (RM)</option>
+                      </select>
+                      <p class="currency-note">${t("currency_note")}</p>
+                    </div>`
+                  : ""
+              }
+
               <div class="spec-row"><span>${t("summary_capacity")}</span><b>${unit.kapasitas} ${t("orang")}</b></div>
-              <div class="spec-row"><span>${t("price_self_drive")}</span><b>${formatRupiah(unit.harga_lepas_kunci)}/${getLang() === "en" ? "day" : "hari"}</b></div>
-              <div class="spec-row"><span>${t("price_with_driver")}</span><b>${formatRupiah(unit.harga_dengan_sopir)}/${getLang() === "en" ? "day" : "hari"}</b></div>
+              <div class="spec-row"><span>${t("price_self_drive")}</span><b id="specSelfDrivePrice">${formatPrice(unit.harga_lepas_kunci)}/${getLang() === "en" ? "day" : "hari"}</b></div>
+              <div class="spec-row"><span>${t("price_with_driver")}</span><b id="specWithDriverPrice">${formatPrice(unit.harga_dengan_sopir)}/${getLang() === "en" ? "day" : "hari"}</b></div>
 
               <hr class="section-divider" style="margin: 18px 0" />
 
               <div class="price-line"><span>${t("summary_days")}</span><b id="jumlah_hari_display">&mdash;</b></div>
-              <div class="price-line"><span>${t("summary_price_per_day")}</span><b id="harga_per_hari_display">${formatRupiah(unit.harga_lepas_kunci)}</b></div>
-              <div class="price-line"><span>${t("summary_deposit")}</span><b>${formatRupiah(DEPOSIT_FLAT)}</b></div>
+              <div class="price-line"><span>${t("summary_price_per_day")}</span><b id="harga_per_hari_display">${formatPrice(unit.harga_lepas_kunci)}</b></div>
+              <div class="price-line"><span>${t("summary_deposit")}</span><b id="depositDisplay">${formatPrice(DEPOSIT_FLAT)}</b></div>
               <div class="price-total"><span>${t("summary_total")}</span><span id="total_display">&mdash;</span></div>
               <p style="color:var(--text-muted);font-size:0.78rem;margin-top:10px">${t("summary_deposit_note")}</p>
             </div>
@@ -274,10 +383,7 @@
 
               <div class="mb-3">
                 <label class="form-label">${t("label_mode")}</label>
-                <select id="mode_sewa" class="form-control">
-                  <option value="with_driver">${t("option_with_driver")} — ${formatRupiah(unit.harga_dengan_sopir)}/${getLang() === "en" ? "day" : "hari"}, ${t("option_capacity", { n: unit.kapasitas - 1 })}</option>
-                  <option value="self_drive">${t("option_self_drive")} — ${formatRupiah(unit.harga_lepas_kunci)}/${getLang() === "en" ? "day" : "hari"}, ${t("option_capacity", { n: unit.kapasitas })}</option>
-                </select>
+                <select id="mode_sewa" class="form-control">${modeOptionsHtml()}</select>
                 <div class="form-text mt-2" style="color: var(--text-muted); font-size: 0.85rem" id="mode_note"></div>
               </div>
 
@@ -308,7 +414,7 @@
               </div>
               <div class="mb-3">
                 <label class="form-label">${t("label_wa")}</label>
-                <input type="text" id="wa_customer" class="form-control" placeholder="08xxxxxxxxxx" required />
+                <input type="text" id="wa_customer" class="form-control" placeholder="08xxxxxxxxxx" inputmode="numeric" pattern="[0-9]*" required />
               </div>
               <div class="mb-3">
                 <label class="form-label">${t("label_penumpang")}</label>
@@ -343,6 +449,74 @@
         const submitBtn = document.getElementById("submitBtn");
         const resultBox = document.getElementById("resultBox");
 
+        // Nomor WhatsApp cuma boleh angka — buang karakter non-digit tiap
+        // kali user ngetik/paste, jadi nggak bisa kelolosan huruf/simbol.
+        const waCustomerInput = document.getElementById("wa_customer");
+        waCustomerInput.oninput = () => {
+          const digitsOnly = waCustomerInput.value.replace(/\D/g, "");
+          if (digitsOnly !== waCustomerInput.value) {
+            waCustomerInput.value = digitsOnly;
+          }
+        };
+
+        const mobileTotalBar = document.getElementById("mobileTotalBar");
+        const mtbLabel = document.getElementById("mtbLabel");
+        const mtbValue = document.getElementById("mtbValue");
+        const mtbCta = document.getElementById("mtbCta");
+        mobileTotalBar.classList.add("is-ready");
+        mtbCta.textContent = t("mobile_bar_cta");
+        mtbLabel.textContent = t("summary_total");
+        mtbCta.onclick = () => {
+          if (!submitBtn.disabled) {
+            submitBtn.click();
+          } else {
+            tglMulai.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        };
+
+        // Popup konfirmasi sebelum data benar-benar dikirim — dipakai supaya
+        // user (terutama di HP, layar sempit) bisa cek ulang ringkasan
+        // pesanan dulu sebelum submit, bukan langsung ke WhatsApp.
+        const confirmModalOverlay = document.getElementById(
+          "confirmModalOverlay",
+        );
+        const confirmModalBody = document.getElementById("confirmModalBody");
+        const confirmModalCancel = document.getElementById(
+          "confirmModalCancel",
+        );
+        const confirmModalOk = document.getElementById("confirmModalOk");
+
+        function closeConfirmModal() {
+          confirmModalOverlay.classList.remove("is-open");
+        }
+        confirmModalCancel.onclick = closeConfirmModal;
+        confirmModalOverlay.onclick = (e) => {
+          if (e.target === confirmModalOverlay) closeConfirmModal();
+        };
+
+        function openConfirmModal(rows, onConfirm, photoUrl) {
+          const photoHtml = photoUrl
+            ? `<div class="modal-confirm-photo"><img src="${photoUrl}" alt="${t("wa_unit")}"></div>`
+            : "";
+          confirmModalBody.innerHTML =
+            photoHtml +
+            rows
+              .map(
+                (r) =>
+                  `<div class="modal-confirm-row${r.total ? " total" : ""}"><span>${r.label}</span><b>${r.value}</b></div>`,
+              )
+              .join("");
+          confirmModalOverlay.classList.add("is-open");
+          confirmModalOk.onclick = async () => {
+            confirmModalOk.disabled = true;
+            confirmModalOk.textContent = t("submit_btn_saving");
+            await onConfirm();
+            confirmModalOk.disabled = false;
+            confirmModalOk.textContent = t("confirm_modal_ok");
+            closeConfirmModal();
+          };
+        }
+
         function updateModeNote() {
           if (modeSewa.value === "self_drive") {
             modeNote.textContent = t("mode_note_self_drive");
@@ -355,16 +529,54 @@
             jaminanNote.style.display = "none";
           }
         }
-        modeSewa.onchange = () => {
-          updateModeNote();
-          hargaPerHariDisplay.textContent = formatRupiah(
+        function updateHargaPerHariDisplay() {
+          hargaPerHariDisplay.textContent = formatPrice(
             modeSewa.value === "self_drive"
               ? unit.harga_lepas_kunci
               : unit.harga_dengan_sopir,
           );
+        }
+        modeSewa.onchange = () => {
+          updateModeNote();
+          updateHargaPerHariDisplay();
           hitungTotal();
         };
         updateModeNote();
+
+        // Selector mata uang (cuma ada di mode EN — lihat renderForm()).
+        // Ganti kursnya nggak menyentuh flatpickr/tanggal yang sudah
+        // dipilih user, cukup refresh teks harga yang tampil.
+        const currencySelect = document.getElementById("currencySelect");
+        if (currencySelect) {
+          currencySelect.value = selectedCurrency;
+          enhanceSelect(currencySelect);
+          currencySelect.onchange = async () => {
+            selectedCurrency = currencySelect.value;
+            if (selectedCurrency !== "IDR" && !currencyRates) {
+              currencySelect.disabled = true;
+              await fetchCurrencyRates();
+              currencySelect.disabled = false;
+            }
+            refreshPricesForCurrency();
+          };
+        }
+
+        function refreshPricesForCurrency() {
+          const currentMode = modeSewa.value;
+          modeSewa.innerHTML = modeOptionsHtml();
+          modeSewa.value = currentMode;
+          enhanceSelect(modeSewa); // sudah ter-enhance -> cuma refresh label
+
+          document.getElementById("specSelfDrivePrice").textContent =
+            `${formatPrice(unit.harga_lepas_kunci)}/${getLang() === "en" ? "day" : "hari"}`;
+          document.getElementById("specWithDriverPrice").textContent =
+            `${formatPrice(unit.harga_dengan_sopir)}/${getLang() === "en" ? "day" : "hari"}`;
+          document.getElementById("depositDisplay").textContent = formatPrice(
+            DEPOSIT_FLAT,
+          );
+          updateHargaPerHariDisplay();
+          hitungTotal();
+        }
 
         function cekBentrok(start, end) {
           const semuaRentang = [
@@ -382,6 +594,16 @@
           );
         }
 
+        function updateMobileBar(days, total) {
+          if (total == null) {
+            mtbLabel.textContent = t("summary_total");
+            mtbValue.textContent = "—";
+            return;
+          }
+          mtbLabel.textContent = `${t("summary_total")} · ${days} ${t("days_suffix")}`;
+          mtbValue.textContent = formatPrice(total);
+        }
+
         function hitungTotal() {
           statusTanggal.innerHTML = "";
           submitBtn.disabled = true;
@@ -389,6 +611,7 @@
           if (!tglMulai.value || !tglSelesai.value) {
             jumlahHariDisplay.textContent = "—";
             totalDisplay.textContent = "—";
+            updateMobileBar(0, null);
             return;
           }
 
@@ -396,6 +619,7 @@
           const end = new Date(tglSelesai.value);
           if (end < start) {
             statusTanggal.innerHTML = `<span style="color:#ff9d9d">${t("err_end_before_start")}</span>`;
+            updateMobileBar(0, null);
             return;
           }
 
@@ -410,6 +634,7 @@
             statusTanggal.innerHTML = `<span style="color:#ff9d9d">${t("err_unavailable_range")}</span>`;
             jumlahHariDisplay.textContent = "—";
             totalDisplay.textContent = "—";
+            updateMobileBar(0, null);
             return;
           }
 
@@ -419,9 +644,10 @@
               : unit.harga_dengan_sopir;
           const total = jumlahHari * hargaPerHari;
           jumlahHariDisplay.textContent = jumlahHari + " " + t("days_suffix");
-          totalDisplay.textContent = formatRupiah(total);
+          totalDisplay.textContent = formatPrice(total);
           statusTanggal.innerHTML += `<div style="color:var(--accent)">${t("ok_available")}</div>`;
           submitBtn.disabled = false;
+          updateMobileBar(jumlahHari, total);
         }
 
         tglMulai.oninput = tglSelesai.oninput = hitungTotal;
@@ -448,6 +674,11 @@
           locale: getLang() === "en" ? "default" : "id",
           minDate: "today",
           disable: disabledDates,
+          // Dropdown bulan native <select> nggak bisa di-dark-theme-in
+          // penuh (panel opsinya ikut warna OS/browser, bukan CSS kita —
+          // itu sebabnya kelihatan putih nyleneh). "static" bikin nama
+          // bulan jadi teks biasa, navigasi lewat panah ‹ › saja.
+          monthSelectorType: "static",
         };
 
         const tglMulaiFP = flatpickr(tglMulai, {
@@ -473,28 +704,17 @@
           },
         });
 
-        submitBtn.onclick = async () => {
-          const nama = document.getElementById("nama_customer").value.trim();
-          const wa = document.getElementById("wa_customer").value.trim();
-          const penumpang = document.getElementById("jumlah_penumpang").value;
-          const catatan = document.getElementById("catatan").value.trim();
-
-          if (!nama || !wa || !tglMulai.value || !tglSelesai.value) {
-            resultBox.innerHTML = `<div class="alert alert-danger">${t("err_incomplete")}</div>`;
-            return;
-          }
-          if (cekBentrok(tglMulai.value, tglSelesai.value)) {
-            resultBox.innerHTML = `<div class="alert alert-danger">${t("err_unavailable_submit")}</div>`;
-            return;
-          }
-
-          const jumlahHari = hitungJumlahHari(tglMulai.value, tglSelesai.value);
-          const hargaPerHari =
-            modeSewa.value === "self_drive"
-              ? unit.harga_lepas_kunci
-              : unit.harga_dengan_sopir;
-          const total = jumlahHari * hargaPerHari;
-
+        // Simpan booking ke Supabase & tampilkan tombol WA — dipanggil
+        // setelah user menekan "Ya, Kirim Pesanan" di popup konfirmasi.
+        async function finalizeBooking({
+          nama,
+          wa,
+          penumpang,
+          catatan,
+          jumlahHari,
+          total,
+          modeLabel,
+        }) {
           const bookingPayload = {
             unit_id: unit.id,
             mode_sewa: modeSewa.value,
@@ -510,25 +730,17 @@
             status: "menunggu_konfirmasi",
           };
 
-          submitBtn.disabled = true;
-          submitBtn.textContent = t("submit_btn_saving");
-
           const { error } = await supabaseClient
             .from("bookings")
             .insert(bookingPayload);
 
-          submitBtn.textContent = t("submit_btn");
           if (error) {
             console.error(error);
             resultBox.innerHTML = `<div class="alert alert-danger">${t("err_save_failed")}</div>`;
-            submitBtn.disabled = false;
+            resultBox.scrollIntoView({ behavior: "smooth", block: "center" });
             return;
           }
 
-          const modeLabel =
-            modeSewa.value === "self_drive"
-              ? t("option_self_drive")
-              : t("option_with_driver");
           const pesan =
             `${t("wa_greeting", { brand: "Rumah Mobil Jogja - Rental Mobil" })}\n\n` +
             `${t("wa_unit")}: ${unit.brand} ${unit.model || ""} (${unit.tahun})\n` +
@@ -551,6 +763,78 @@
               ${t("send_wa_btn")}
             </a>`;
           submitBtn.style.display = "none";
+          mobileTotalBar.classList.remove("is-ready");
+          resultBox.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        // Klik submit TIDAK langsung mengirim — validasi dulu, lalu buka
+        // popup ringkasan pesanan supaya user cek ulang detailnya. Data
+        // baru benar-benar disimpan & dikirim ke WA setelah user menekan
+        // tombol konfirmasi di dalam popup (lihat openConfirmModal di atas).
+        submitBtn.onclick = () => {
+          const nama = document.getElementById("nama_customer").value.trim();
+          const wa = document.getElementById("wa_customer").value.trim();
+          const penumpang = document.getElementById("jumlah_penumpang").value;
+          const catatan = document.getElementById("catatan").value.trim();
+
+          if (!nama || !wa || !tglMulai.value || !tglSelesai.value) {
+            resultBox.innerHTML = `<div class="alert alert-danger">${t("err_incomplete")}</div>`;
+            return;
+          }
+          if (cekBentrok(tglMulai.value, tglSelesai.value)) {
+            resultBox.innerHTML = `<div class="alert alert-danger">${t("err_unavailable_submit")}</div>`;
+            return;
+          }
+
+          const jumlahHari = hitungJumlahHari(tglMulai.value, tglSelesai.value);
+          const hargaPerHari =
+            modeSewa.value === "self_drive"
+              ? unit.harga_lepas_kunci
+              : unit.harga_dengan_sopir;
+          const total = jumlahHari * hargaPerHari;
+          const modeLabel =
+            modeSewa.value === "self_drive"
+              ? t("option_self_drive")
+              : t("option_with_driver");
+
+          const rows = [
+            {
+              label: t("wa_unit"),
+              value: `${unit.brand} ${unit.model || ""}`,
+            },
+            { label: t("wa_mode"), value: modeLabel },
+            {
+              label: t("wa_tanggal"),
+              value: `${tglMulai.value} ${t("wa_sd")} ${tglSelesai.value} (${jumlahHari} ${t("days_suffix")})`,
+            },
+            { label: t("wa_nama"), value: nama },
+            { label: t("wa_wa"), value: wa },
+            ...(penumpang
+              ? [{ label: t("wa_penumpang"), value: penumpang }]
+              : []),
+            ...(catatan ? [{ label: t("wa_catatan"), value: catatan }] : []),
+            { label: t("summary_deposit"), value: formatPrice(DEPOSIT_FLAT) },
+            {
+              label: t("summary_total"),
+              value: formatPrice(total),
+              total: true,
+            },
+          ];
+
+          openConfirmModal(
+            rows,
+            () =>
+              finalizeBooking({
+                nama,
+                wa,
+                penumpang,
+                catatan,
+                jumlahHari,
+                total,
+                modeLabel,
+              }),
+            unit.foto || "https://via.placeholder.com/420x260?text=Foto+Unit",
+          );
         };
       }
     </script>
